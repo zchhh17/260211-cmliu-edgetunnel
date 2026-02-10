@@ -1,4 +1,4 @@
-#name: Mirror Git Repository (Safe First Run)
+name: Mirror Git Repository (Safe First Run)
 
 on:
   workflow_dispatch:
