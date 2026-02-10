@@ -1,0 +1,39 @@
+name: Mirror Git Repository (Safe First Run)
+
+on:
+  workflow_dispatch:
+  #schedule:
+    #- cron: "23 */6 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout self (infra only)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Mirror upstream repository
+        env:
+          UPSTREAM_REPO: https://github.com/cmliu/edgetunnel.git
+          TARGET_REPO: https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
+        run: |
+          set -Eeuo pipefail
+
+          echo "==> Cloning upstream (mirror)"
+          git clone --mirror "$UPSTREAM_REPO" mirror.git
+          cd mirror.git
+
+          echo "==> Remove dangerous refs (PR / hidden)"
+          git for-each-ref --format='%(refname)' refs/pull | xargs -r -n 1 git update-ref -d
+
+          echo "==> Pushing branches"
+          git push "$TARGET_REPO" --all --force
+
+          echo "==> Pushing tags"
+          git push "$TARGET_REPO" --tags --force
