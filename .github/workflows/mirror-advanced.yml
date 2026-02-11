@@ -89,6 +89,11 @@ jobs:
             echo "First run - full mirror" > ../release-files/commit-diff.txt
           fi
 
+          # 防止空文件
+          if [ ! -s ../release-files/commit-diff.txt ]; then
+            echo "No visible commit differences (possibly fast-forward update)." > ../release-files/commit-diff.txt
+          fi
+
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
