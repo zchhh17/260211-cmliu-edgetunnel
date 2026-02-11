@@ -1,9 +1,9 @@
-name: Mirror Git Repository (Safe First Run)
+name: Mirror Repository (C Full)
 
 on:
   workflow_dispatch:
   #schedule:
-    #- cron: "23 */6 * * *"
+    #- cron: "17 */6 * * *"
 
 permissions:
   contents: write
@@ -13,27 +13,54 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout self (infra only)
+      - name: Checkout infra (for state)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Mirror upstream repository
+      - name: Mirror upstream
         env:
-          UPSTREAM_REPO: https://github.com/cmliu/edgetunnel.git
-          TARGET_REPO: https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
+          UPSTREAM: https://github.com/cmliu/edgetunnel.git
+          TARGET: https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
         run: |
           set -Eeuo pipefail
 
-          echo "==> Cloning upstream (mirror)"
-          git clone --mirror "$UPSTREAM_REPO" mirror.git
+          echo "▶ Clone upstream"
+          git clone --mirror "$UPSTREAM" mirror.git
           cd mirror.git
 
-          echo "==> Remove dangerous refs (PR / hidden)"
+          echo "▶ Remove hidden refs (PRs)"
           git for-each-ref --format='%(refname)' refs/pull | xargs -r -n 1 git update-ref -d
 
-          echo "==> Pushing branches"
-          git push "$TARGET_REPO" --all --force
+          echo "▶ Record upstream state"
+          git show-ref > /tmp/upstream.refs
 
-          echo "==> Pushing tags"
-          git push "$TARGET_REPO" --tags --force
+          echo "▶ Push branches"
+          git push "$TARGET" --all --force
+
+          echo "▶ Push tags"
+          git push "$TARGET" --tags --force
+
+      - name: Generate mirror summary
+        run: |
+          set -Eeuo pipefail
+
+          echo "## 🔄 Mirror Sync Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Repository: **cmliu/edgetunnel**" >> $GITHUB_STEP_SUMMARY
+          echo "- Target: **${{ github.repository }}**" >> $GITHUB_STEP_SUMMARY
+          echo "- Time: $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "### 📦 Branches" >> $GITHUB_STEP_SUMMARY
+          git ls-remote --heads https://github.com/${{ github.repository }}.git \
+            | awk '{print "- " $2}' >> $GITHUB_STEP_SUMMARY
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🏷 Tags (latest 10)" >> $GITHUB_STEP_SUMMARY
+          git ls-remote --tags https://github.com/${{ github.repository }}.git \
+            | awk '{print $2}' | tail -n 10 | sed 's#refs/tags/#- #' >> $GITHUB_STEP_SUMMARY
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔍 Compare" >> $GITHUB_STEP_SUMMARY
+          echo "- https://github.com/cmliu/edgetunnel/compare" >> $GITHUB_STEP_SUMMARY
