@@ -1,0 +1,96 @@
+name: Mirror Advanced
+
+on:
+  workflow_dispatch:
+  #schedule:
+    #- cron: '0 */6 * * *'   # 每6小时
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    env:
+      UPSTREAM_REPO: cmliu/edgetunnel
+      TARGET_REPO: ${{ github.repository }}
+
+    steps:
+      - name: Checkout infra
+        uses: actions/checkout@v4
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "mirror-bot"
+          git config --global user.email "mirror@example.com"
+
+      - name: Clone upstream (mirror)
+        run: |
+          set -Eeuo pipefail
+          git clone --mirror https://github.com/${UPSTREAM_REPO}.git mirror.git
+          cd mirror.git
+          git remote remove origin
+          git remote add origin https://x-access-token:${{ secrets.PAT }}@github.com/${TARGET_REPO}.git
+
+      - name: Remove pull refs (avoid hidden ref error)
+        run: |
+          cd mirror.git
+          git for-each-ref --format='%(refname)' refs/pull | xargs -r -n 1 git update-ref -d
+
+      - name: Push branches and tags
+        run: |
+          cd mirror.git
+          git push origin --all --force
+          git push origin --tags --force
+
+      - name: Get latest commit
+        id: latest
+        run: |
+          cd mirror.git
+          LATEST_SHA=$(git rev-parse refs/heads/main)
+          echo "sha=$LATEST_SHA" >> $GITHUB_OUTPUT
+
+      - name: Get previous SHA (from tag if exists)
+        id: previous
+        run: |
+          PREV_SHA=$(git tag -l "backup-last-sha" | head -n1 || true)
+          if [ -z "$PREV_SHA" ]; then
+            echo "prev=none" >> $GITHUB_OUTPUT
+          else
+            SHA=$(git rev-list -n 1 $PREV_SHA)
+            echo "prev=$SHA" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate diff summary
+        run: |
+          cd mirror.git
+          mkdir -p ../release-files
+          echo "Mirror Time: $(date -u)" > ../release-files/summary.txt
+          echo "Upstream: ${UPSTREAM_REPO}" >> ../release-files/summary.txt
+          echo "Latest SHA: ${{ steps.latest.outputs.sha }}" >> ../release-files/summary.txt
+          echo "" >> ../release-files/summary.txt
+
+          if [ "${{ steps.previous.outputs.prev }}" != "none" ]; then
+            git log ${{ steps.previous.outputs.prev }}..${{ steps.latest.outputs.sha }} --oneline > ../release-files/commit-diff.txt
+          else
+            echo "First run - full mirror" > ../release-files/commit-diff.txt
+          fi
+
+      - name: Tag current SHA
+        run: |
+          cd mirror.git
+          git tag -f backup-last-sha
+          git push origin backup-last-sha --force
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: mirror-${{ github.run_number }}
+          name: Mirror Run ${{ github.run_number }}
+          body_path: release-files/summary.txt
+          files: |
+            release-files/summary.txt
+            release-files/commit-diff.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
