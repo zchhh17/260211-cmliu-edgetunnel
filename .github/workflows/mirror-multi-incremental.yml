@@ -22,6 +22,23 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           set -Eeuo pipefail
+          retry() {
+            local n=1
+            local max=3
+            local delay=5
+            while true; do
+              "$@" && break || {
+                if [[ $n -lt $max ]]; then
+                  echo "Retry $n/$max..."
+                  ((n++))
+                  sleep $delay
+                else
+                  echo "Command failed after $max attempts."
+                  return 1
+                fi
+              }
+            done
+          }
 
           mkdir -p mirrors
           mkdir -p .mirror-state
@@ -68,7 +85,7 @@ jobs:
             dir="mirrors/$safe_name"
             rm -rf "$dir"
 
-            git clone --mirror https://github.com/$repo.git "$dir" || {
+            retry git clone --mirror https://github.com/$repo.git "$dir" || {
               echo "❌ Clone failed"
               failed=$((failed+1))
               continue
@@ -77,7 +94,7 @@ jobs:
             cd "$dir"
 
             git remote add target https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
-            git push target --mirror || {
+            retry git push target --mirror || {
               echo "❌ Push failed"
               cd -
               failed=$((failed+1))
