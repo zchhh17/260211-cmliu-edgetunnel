@@ -1,14 +1,9 @@
-# 🪞 Mirror Control Panel
+# Mirror Index
 
-Last Updated: Wed Feb 11 20:16:56 UTC 2026
+Run time: Wed Feb 11 22:17:58 UTC 2026
 
-## cmliu/edgetunnel
-- Latest SHA: ce7ef9fd60dfd33f8b9bcd7f63fb692e65775a16
-- Mirror Branch: mirror-edgetunnel
-- Updated This Run: ✅
+---
 
-## #badafans/socksforward
-- Latest SHA: 
-- Mirror Branch: mirror-socksforward
-- Updated This Run: ❌
-
+Updated: 0
+Skipped: 0
+Failed: 2
