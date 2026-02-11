@@ -1,0 +1,127 @@
+name: Mirror Repos (B+C Advanced)
+
+on:
+  workflow_dispatch:
+  #schedule:
+    #- cron: "41 */6 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout infra
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_KEY }}
+
+      - name: Mirror repositories
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -Eeuo pipefail
+
+          REPOS=(
+            "cmliu/edgetunnel"
+            "badafans/socksforward"
+          )
+
+          retry() {
+            local n=0
+            until [ "$n" -ge 5 ]; do
+              "$@" && break
+              n=$((n+1))
+              echo "Retry $n/5 failed, wait 10s..."
+              sleep 10
+            done
+            [ "$n" -lt 5 ]
+          }
+
+          mkdir -p state releases
+
+          for repo in "${REPOS[@]}"; do
+            echo "=============================="
+            echo "▶ $repo"
+            echo "=============================="
+
+            name=$(echo "$repo" | tr '/' '_')
+            state_file="state/$name.commit"
+
+            UPSTREAM="https://github.com/$repo.git"
+            TARGET="https://x-access-token:$GH_TOKEN@github.com/${{ github.repository }}.git"
+
+            rm -rf mirror.git
+            retry git clone --mirror "$UPSTREAM" mirror.git
+            cd mirror.git
+
+            git for-each-ref --format='%(refname)' refs/pull | xargs -r git update-ref -d
+
+            new_commit=$(git rev-parse HEAD)
+
+            old_commit=""
+            [ -f "../$state_file" ] && old_commit=$(cat "../$state_file")
+
+            retry git push "$TARGET" --all --force
+            retry git push "$TARGET" --tags --force
+
+            echo "$new_commit" > "../$state_file"
+            cd ..
+
+            ##################################
+            # Release + Assets（每仓库独立）
+            ##################################
+            mkdir -p "releases/$name"
+            cd "releases/$name"
+
+            gh release list -R "$repo" --limit 10 > releases.txt || true
+
+            while read -r line; do
+              tag=$(echo "$line" | awk '{print $1}')
+              gh release download "$tag" -R "$repo" --clobber || true
+            done < releases.txt
+
+            cd ../..
+
+            ##################################
+            # Summary（commit diff）
+            ##################################
+            {
+              echo "### 📦 $repo"
+              if [ -n "$old_commit" ]; then
+                echo "- Commits:"
+                echo "  - https://github.com/$repo/compare/$old_commit...$new_commit"
+              else
+                echo "- First mirror (no diff)"
+              fi
+              echo ""
+            } >> "$GITHUB_STEP_SUMMARY"
+          done
+
+      - name: Publish per-repo releases
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -Eeuo pipefail
+
+          for d in releases/*; do
+            repo=$(basename "$d")
+            ts=$(date -u +"%Y%m%d-%H%M%S")
+            tarball="$repo-assets-$ts.tar.gz"
+
+            tar -czf "$tarball" "$d"
+
+            gh release create "$repo-assets-$ts" \
+              "$tarball" \
+              --title "$repo assets $ts" \
+              --notes "Auto mirrored release assets for $repo"
+          done
