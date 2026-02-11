@@ -1,4 +1,4 @@
-name: Mirror Advanced
+name: Mirror Multi Advanced
 
 on:
   workflow_dispatch:
@@ -8,107 +8,101 @@ on:
 jobs:
   mirror:
     runs-on: ubuntu-latest
-
     permissions:
       contents: write
-
-    env:
-      UPSTREAM_REPO: cmliu/edgetunnel
-      TARGET_REPO: ${{ github.repository }}
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Git
+      - name: Setup Git
         run: |
           git config --global user.name "mirror-bot"
           git config --global user.email "mirror@example.com"
 
-      # 获取上游最新 SHA
-      - name: Get upstream latest SHA
-        id: upstream
+      - name: Process each repo
         run: |
-          UP_SHA=$(git ls-remote https://github.com/${UPSTREAM_REPO}.git refs/heads/main | cut -f1)
-          echo "sha=$UP_SHA" >> $GITHUB_OUTPUT
+          set -Eeuo pipefail
 
-      # 获取当前仓库 main SHA（如果存在）
-      - name: Get current target SHA
-        id: target
-        run: |
-          TARGET_SHA=$(git ls-remote https://github.com/${TARGET_REPO}.git refs/heads/main | cut -f1 || true)
-          echo "sha=$TARGET_SHA" >> $GITHUB_OUTPUT
+          # ===== 初始化控制台 =====
+          echo "# 🪞 Mirror Control Panel" > mirror-index.md
+          echo "" >> mirror-index.md
+          echo "Last Updated: $(date -u)" >> mirror-index.md
+          echo "" >> mirror-index.md
 
-      # 判断是否有更新
-      - name: Check if update needed
-        id: check
-        run: |
-          if [ "${{ steps.upstream.outputs.sha }}" = "${{ steps.target.outputs.sha }}" ]; then
-            echo "update=false" >> $GITHUB_OUTPUT
-            echo "No update needed."
-          else
-            echo "update=true" >> $GITHUB_OUTPUT
-            echo "Update detected."
-          fi
+          while read repo; do
+            echo "Processing $repo"
 
-      # 如果没更新就直接结束
-      - name: Stop if no update
-        if: steps.check.outputs.update == 'false'
-        run: exit 0
+            NAME=$(basename $repo)
+            BRANCH="mirror-$NAME"
 
-      # 有更新才 clone
-      - name: Clone upstream (mirror)
-        run: |
-          git clone --mirror https://github.com/${UPSTREAM_REPO}.git mirror.git
-          cd mirror.git
-          git remote remove origin
-          git remote add origin https://x-access-token:${{ secrets.PAT }}@github.com/${TARGET_REPO}.git
+            UP_SHA=$(git ls-remote https://github.com/$repo.git refs/heads/main | cut -f1 || true)
+            TARGET_SHA=$(git ls-remote https://github.com/${{ github.repository }}.git refs/heads/$BRANCH | cut -f1 || true)
 
-      - name: Remove pull refs
-        run: |
-          cd mirror.git
-          git for-each-ref --format='%(refname)' refs/pull | xargs -r -n 1 git update-ref -d
+            UPDATED="❌"
+            if [ "$UP_SHA" != "$TARGET_SHA" ]; then
+              UPDATED="✅"
 
-      - name: Push branches and tags
-        run: |
-          cd mirror.git
-          git push origin --all --force
-          git push origin --tags --force
+              git clone --mirror https://github.com/$repo.git mirror.git
+              cd mirror.git
 
-      - name: Generate commit diff
-        run: |
-          cd mirror.git
-          mkdir -p ../release-files
-          echo "Mirror Time: $(date -u)" > ../release-files/summary.txt
-          echo "Upstream: ${UPSTREAM_REPO}" >> ../release-files/summary.txt
-          echo "Latest SHA: ${{ steps.upstream.outputs.sha }}" >> ../release-files/summary.txt
-          echo "" >> ../release-files/summary.txt
+              git for-each-ref --format='%(refname)' refs/pull | xargs -r -n 1 git update-ref -d
 
-          if [ -n "${{ steps.target.outputs.sha }}" ]; then
-            git log ${{ steps.target.outputs.sha }}..${{ steps.upstream.outputs.sha }} --oneline > ../release-files/commit-diff.txt
-          else
-            echo "First run - full mirror" > ../release-files/commit-diff.txt
-          fi
+              git remote remove origin
+              git remote add origin https://x-access-token:${{ secrets.PAT }}@github.com/${{ github.repository }}.git
 
-          # 防止空文件
-          if [ ! -s ../release-files/commit-diff.txt ]; then
-            echo "No visible commit differences (possibly fast-forward update)." > ../release-files/commit-diff.txt
-          fi
+              git push origin --all --force
+              git push origin --tags --force
 
-      - name: Create source archive
-        run: |
-          git clone https://github.com/${TARGET_REPO}.git source
-          cd source
-          git checkout main
-          cd ..
-          tar -czf release-files/source-${{ steps.upstream.outputs.sha }}.tar.gz source
+              cd ..
 
-      - name: Create release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: mirror-${{ github.run_number }}
-          name: Mirror Run ${{ github.run_number }}
-          body_path: release-files/summary.txt
-          files: |
-            release-files/summary.txt
-            release-files/commit-diff.txt
-            release-files/source-${{ steps.upstream.outputs.sha }}.tar.gz
+              mkdir -p release-files
+
+              echo "Mirror Time: $(date -u)" > release-files/summary-$NAME.txt
+              echo "Upstream: $repo" >> release-files/summary-$NAME.txt
+              echo "Latest SHA: $UP_SHA" >> release-files/summary-$NAME.txt
+
+              if [ -n "$TARGET_SHA" ]; then
+                git --git-dir=mirror.git log $TARGET_SHA..$UP_SHA --oneline > release-files/commit-diff-$NAME.txt || true
+              else
+                echo "First run - full mirror" > release-files/commit-diff-$NAME.txt
+              fi
+
+              if [ ! -s release-files/commit-diff-$NAME.txt ]; then
+                echo "No visible commit differences." > release-files/commit-diff-$NAME.txt
+              fi
+
+              git clone https://github.com/${{ github.repository }}.git source
+              cd source
+              git checkout main || true
+              cd ..
+
+              tar -czf release-files/source-$NAME-$UP_SHA.tar.gz source
+
+              gh release create mirror-$NAME-${{ github.run_number }} \
+                release-files/summary-$NAME.txt \
+                release-files/commit-diff-$NAME.txt \
+                release-files/source-$NAME-$UP_SHA.tar.gz \
+                --title "Mirror $NAME Run ${{ github.run_number }}" \
+                --notes-file release-files/summary-$NAME.txt || true
+
+              rm -rf mirror.git source release-files
+            fi
+
+            # ===== 写入控制台 =====
+            echo "## $repo" >> mirror-index.md
+            echo "- Latest SHA: $UP_SHA" >> mirror-index.md
+            echo "- Mirror Branch: $BRANCH" >> mirror-index.md
+            echo "- Updated This Run: $UPDATED" >> mirror-index.md
+            echo "" >> mirror-index.md
+
+          done < mirror-list.txt
+
+          # ===== 提交控制台 =====
+          git checkout infra
+          git pull
+          git add mirror-index.md
+          git commit -m "Update mirror index [run ${{ github.run_number }}]" || true
+          git push
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
