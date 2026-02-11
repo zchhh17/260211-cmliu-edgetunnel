@@ -1,0 +1,108 @@
+name: Mirror Repos (B+C Full)
+
+on:
+  workflow_dispatch:
+  #schedule:
+    #- cron: "29 */6 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout infra
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Mirror repositories
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          set -Eeuo pipefail
+
+          ########################################
+          # 仓库清单（想加就加）
+          ########################################
+          REPOS=(
+            "cmliu/edgetunnel"
+            "badafans/socksforward"
+          )
+
+          retry() {
+            local n=0
+            until [ "$n" -ge 5 ]; do
+              "$@" && break
+              n=$((n+1))
+              echo "Retry $n/5 failed, wait 10s..."
+              sleep 10
+            done
+            [ "$n" -lt 5 ]
+          }
+
+          for repo in "${REPOS[@]}"; do
+            echo "=============================="
+            echo "▶ Mirroring $repo"
+            echo "=============================="
+
+            UPSTREAM="https://github.com/$repo.git"
+            TARGET="https://x-access-token:$GH_PAT@github.com/${{ github.repository }}.git"
+
+            rm -rf mirror.git
+            retry git clone --mirror "$UPSTREAM" mirror.git
+            cd mirror.git
+
+            # 删除 PR / hidden refs
+            git for-each-ref --format='%(refname)' refs/pull | xargs -r git update-ref -d
+
+            retry git push "$TARGET" --all --force
+            retry git push "$TARGET" --tags --force
+
+            cd ..
+
+            ########################################
+            # Release + Assets
+            ########################################
+            echo "▶ Sync releases for $repo"
+            mkdir -p releases/$repo
+            cd releases/$repo
+
+            retry gh release list -R "$repo" --limit 10 > releases.txt || true
+
+            while read -r line; do
+              tag=$(echo "$line" | awk '{print $1}')
+              echo "  - Release $tag"
+              retry gh release download "$tag" -R "$repo" --clobber || true
+            done < releases.txt
+
+            cd ../../
+          done
+
+      - name: Publish release assets
+        run: |
+          set -Eeuo pipefail
+
+          TS=$(date -u +"%Y%m%d-%H%M%S")
+          tar -czf mirror-assets-$TS.tar.gz releases || true
+
+          gh release create mirror-assets-$TS \
+            mirror-assets-$TS.tar.gz \
+            --title "Mirror assets $TS" \
+            --notes "Auto mirrored release assets"
+
+      - name: Summary
+        run: |
+          echo "## 🔄 Mirror Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Time: $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "- Repos:" >> $GITHUB_STEP_SUMMARY
+          echo "  - cmliu/edgetunnel" >> $GITHUB_STEP_SUMMARY
+          echo "  - badafans/socksforward" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Includes:" >> $GITHUB_STEP_SUMMARY
+          echo "- Branches + tags mirror" >> $GITHUB_STEP_SUMMARY
+          echo "- Release assets" >> $GITHUB_STEP_SUMMARY
+          echo "- Retry on network failure" >> $GITHUB_STEP_SUMMARY
