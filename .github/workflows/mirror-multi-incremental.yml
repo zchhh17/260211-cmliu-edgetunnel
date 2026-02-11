@@ -1,0 +1,127 @@
+name: Mirror Multi Incremental
+
+on:
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git
+
+      - name: Run Incremental Mirror
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          set -Eeuo pipefail
+
+          mkdir -p mirrors
+          mkdir -p .mirror-state
+
+          echo "# Mirror Index" > mirror-index.md
+          echo "" >> mirror-index.md
+          echo "Run time: $(date -u)" >> mirror-index.md
+          echo "" >> mirror-index.md
+
+          updated=0
+          skipped=0
+          failed=0
+
+          while read repo; do
+            [ -z "$repo" ] && continue
+
+            echo "==== Processing $repo ===="
+
+            safe_name=$(echo $repo | tr '/' '-')
+            state_file=".mirror-state/${safe_name}.sha"
+
+            upstream_sha=$(git ls-remote https://github.com/$repo.git HEAD | cut -f1 || echo "")
+
+            if [ -z "$upstream_sha" ]; then
+              echo "❌ Failed to fetch upstream SHA"
+              failed=$((failed+1))
+              continue
+            fi
+
+            last_sha=""
+            if [ -f "$state_file" ]; then
+              last_sha=$(cat "$state_file")
+            fi
+
+            if [ "$upstream_sha" = "$last_sha" ]; then
+              echo "⏭ No changes"
+              echo "### $repo" >> mirror-index.md
+              echo "- Status: Skipped (No change)" >> mirror-index.md
+              echo "" >> mirror-index.md
+              skipped=$((skipped+1))
+              continue
+            fi
+
+            dir="mirrors/$safe_name"
+            rm -rf "$dir"
+
+            git clone --mirror https://github.com/$repo.git "$dir" || {
+              echo "❌ Clone failed"
+              failed=$((failed+1))
+              continue
+            }
+
+            cd "$dir"
+
+            git remote add target https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+            git push target --mirror || {
+              echo "❌ Push failed"
+              cd -
+              failed=$((failed+1))
+              continue
+            }
+
+            echo "$upstream_sha" > "../../$state_file"
+
+            echo "🧾 Commit Diff" > commit-diff.txt
+            echo "" >> commit-diff.txt
+            git log --oneline -n 20 >> commit-diff.txt
+
+            tar -czf repo.tar.gz .
+
+            tag="mirror-$(date +%s)-$safe_name"
+
+            gh release create "$tag" \
+              repo.tar.gz \
+              commit-diff.txt \
+              --title "$repo mirror" \
+              --notes "Upstream updated to $upstream_sha"
+
+            echo "### $repo" >> ../../mirror-index.md
+            echo "- Upstream SHA: $upstream_sha" >> ../../mirror-index.md
+            echo "- Previous SHA: ${last_sha:-none}" >> ../../mirror-index.md
+            echo "- Status: Updated" >> ../../mirror-index.md
+            echo "" >> ../../mirror-index.md
+
+            cd -
+
+            updated=$((updated+1))
+
+          done < mirror-list.txt
+
+          echo "---" >> mirror-index.md
+          echo "" >> mirror-index.md
+          echo "Updated: $updated" >> mirror-index.md
+          echo "Skipped: $skipped" >> mirror-index.md
+          echo "Failed: $failed" >> mirror-index.md
+
+      - name: Commit state
+        run: |
+          git config user.name "mirror-bot"
+          git config user.email "mirror@bot"
+          git add .mirror-state mirror-index.md || true
+          git commit -m "update mirror state" || true
+          git push
