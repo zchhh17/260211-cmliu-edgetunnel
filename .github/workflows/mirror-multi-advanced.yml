@@ -1,0 +1,89 @@
+name: Mirror Multi Advanced
+
+on:
+  workflow_dispatch:
+  #schedule:
+    #- cron: '0 */6 * * *'
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Git
+        run: |
+          git config --global user.name "mirror-bot"
+          git config --global user.email "mirror@example.com"
+
+      - name: Process each repo
+        run: |
+          set -Eeuo pipefail
+
+          while read repo; do
+            echo "=============================="
+            echo "Processing $repo"
+            echo "=============================="
+
+            NAME=$(basename $repo)
+            BRANCH="mirror-$NAME"
+
+            UP_SHA=$(git ls-remote https://github.com/$repo.git refs/heads/main | cut -f1 || true)
+            TARGET_SHA=$(git ls-remote https://github.com/${{ github.repository }}.git refs/heads/$BRANCH | cut -f1 || true)
+
+            if [ "$UP_SHA" = "$TARGET_SHA" ]; then
+              echo "No update for $repo"
+              continue
+            fi
+
+            git clone --mirror https://github.com/$repo.git mirror.git
+            cd mirror.git
+
+            git for-each-ref --format='%(refname)' refs/pull | xargs -r -n 1 git update-ref -d
+
+            git remote remove origin
+            git remote add origin https://x-access-token:${{ secrets.PAT }}@github.com/${{ github.repository }}.git
+
+            git push origin --all --force
+            git push origin --tags --force
+
+            cd ..
+
+            mkdir -p release-files
+
+            echo "Mirror Time: $(date -u)" > release-files/summary-$NAME.txt
+            echo "Upstream: $repo" >> release-files/summary-$NAME.txt
+            echo "Latest SHA: $UP_SHA" >> release-files/summary-$NAME.txt
+
+            if [ -n "$TARGET_SHA" ]; then
+              git --git-dir=mirror.git log $TARGET_SHA..$UP_SHA --oneline > release-files/commit-diff-$NAME.txt || true
+            else
+              echo "First run - full mirror" > release-files/commit-diff-$NAME.txt
+            fi
+
+            if [ ! -s release-files/commit-diff-$NAME.txt ]; then
+              echo "No visible commit differences." > release-files/commit-diff-$NAME.txt
+            fi
+
+            git clone https://github.com/${{ github.repository }}.git source
+            cd source
+            git checkout main || true
+            cd ..
+
+            tar -czf release-files/source-$NAME-$UP_SHA.tar.gz source
+
+            gh release create mirror-$NAME-${{ github.run_number }} \
+              release-files/summary-$NAME.txt \
+              release-files/commit-diff-$NAME.txt \
+              release-files/source-$NAME-$UP_SHA.tar.gz \
+              --title "Mirror $NAME Run ${{ github.run_number }}" \
+              --notes-file release-files/summary-$NAME.txt || true
+
+            rm -rf mirror.git source release-files
+
+          done < mirror-list.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
