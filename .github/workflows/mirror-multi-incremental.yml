@@ -15,13 +15,14 @@ jobs:
       - name: Setup
         run: |
           sudo apt-get update
-          sudo apt-get install -y git
+          sudo apt-get install -y git gh
 
       - name: Run Incremental Mirror
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           set -Eeuo pipefail
+
           retry() {
             local n=1
             local max=3
@@ -42,6 +43,7 @@ jobs:
 
           mkdir -p mirrors
           mkdir -p .mirror-state
+          mkdir -p releases
 
           echo "# Mirror Index" > mirror-index.md
           echo "" >> mirror-index.md
@@ -95,15 +97,15 @@ jobs:
 
             git remote add target https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
 
-            # 只推 heads
-            retry git push target 'refs/heads/*:refs/heads/*'  || {
+            # 推 heads
+            retry git push target 'refs/heads/*:refs/heads/*' || {
               echo "❌ Push heads failed"
               cd -
               failed=$((failed+1))
               continue
             }
 
-            # 只推 tags
+            # 推 tags
             retry git push target 'refs/tags/*:refs/tags/*' || {
               echo "❌ Push tags failed"
               cd -
@@ -113,27 +115,31 @@ jobs:
 
             echo "$upstream_sha" > "../../$state_file"
 
-            echo "🧾 Commit Diff" > commit-diff.txt
-            echo "" >> commit-diff.txt
-            git log --oneline -n 20 >> commit-diff.txt
+            # 生成 commit diff
+            diff_file="../../releases/${safe_name}-commit.txt"
+            echo "🧾 Commit Diff" > "$diff_file"
+            echo "" >> "$diff_file"
+            git log --oneline -n 20 >> "$diff_file"
 
-            tar -czf repo.tar.gz .
+            cd ../..
+
+            # 安全打包（在仓库外执行）
+            tar --warning=no-file-changed --ignore-failed-read \
+              -czf "releases/${safe_name}.tar.gz" "mirrors/${safe_name}"
 
             tag="mirror-$(date +%s)-$safe_name"
 
             gh release create "$tag" \
-              repo.tar.gz \
-              commit-diff.txt \
+              "releases/${safe_name}.tar.gz" \
+              "releases/${safe_name}-commit.txt" \
               --title "$repo mirror" \
               --notes "Upstream updated to $upstream_sha"
 
-            echo "### $repo" >> ../../mirror-index.md
-            echo "- Upstream SHA: $upstream_sha" >> ../../mirror-index.md
-            echo "- Previous SHA: ${last_sha:-none}" >> ../../mirror-index.md
-            echo "- Status: Updated" >> ../../mirror-index.md
-            echo "" >> ../../mirror-index.md
-
-            cd -
+            echo "### $repo" >> mirror-index.md
+            echo "- Upstream SHA: $upstream_sha" >> mirror-index.md
+            echo "- Previous SHA: ${last_sha:-none}" >> mirror-index.md
+            echo "- Status: Updated" >> mirror-index.md
+            echo "" >> mirror-index.md
 
             updated=$((updated+1))
 
