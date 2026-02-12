@@ -30,11 +30,9 @@ jobs:
             while true; do
               "$@" && break || {
                 if [[ $n -lt $max ]]; then
-                  echo "Retry $n/$max..."
                   ((n++))
                   sleep $delay
                 else
-                  echo "Command failed after $max attempts."
                   return 1
                 fi
               }
@@ -57,15 +55,12 @@ jobs:
           while read repo; do
             [ -z "$repo" ] && continue
 
-            echo "==== Processing $repo ===="
-
             safe_name=$(echo $repo | tr '/' '-')
             state_file=".mirror-state/${safe_name}.sha"
 
             upstream_sha=$(git ls-remote https://github.com/$repo.git HEAD | cut -f1 || echo "")
 
             if [ -z "$upstream_sha" ]; then
-              echo "❌ Failed to fetch upstream SHA"
               failed=$((failed+1))
               continue
             fi
@@ -76,21 +71,19 @@ jobs:
             fi
 
             if [ "$upstream_sha" = "$last_sha" ]; then
-             echo "⏭ No changes"
-             echo "### $repo" >> mirror-index.md
-             echo "- Upstream SHA: $upstream_sha" >> mirror-index.md
-             echo "- Previous SHA: $last_sha" >> mirror-index.md
-             echo "- Status: Skipped (No change)" >> mirror-index.md
-             echo "" >> mirror-index.md
-             skipped=$((skipped+1))
-             continue
+              echo "### $repo" >> mirror-index.md
+              echo "- Upstream SHA: $upstream_sha" >> mirror-index.md
+              echo "- Previous SHA: $last_sha" >> mirror-index.md
+              echo "- Status: Skipped (No change)" >> mirror-index.md
+              echo "" >> mirror-index.md
+              skipped=$((skipped+1))
+              continue
             fi
 
             dir="mirrors/$safe_name"
             rm -rf "$dir"
 
             retry git clone --bare https://github.com/$repo.git "$dir" || {
-              echo "❌ Clone failed"
               failed=$((failed+1))
               continue
             }
@@ -99,17 +92,13 @@ jobs:
 
             git remote add target https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
 
-            # 推 heads
             retry git push target 'refs/heads/*:refs/heads/*' || {
-              echo "❌ Push heads failed"
               cd -
               failed=$((failed+1))
               continue
             }
 
-            # 推 tags
             retry git push target 'refs/tags/*:refs/tags/*' || {
-              echo "❌ Push tags failed"
               cd -
               failed=$((failed+1))
               continue
@@ -117,15 +106,12 @@ jobs:
 
             echo "$upstream_sha" > "../../$state_file"
 
-            # 生成 commit diff
             diff_file="../../releases/${safe_name}-commit.txt"
-            echo "🧾 Commit Diff" > "$diff_file"
-            echo "" >> "$diff_file"
+            echo "Recent Commits:" > "$diff_file"
             git log --oneline -n 20 >> "$diff_file"
 
             cd ../..
 
-            # 安全打包（在仓库外执行）
             tar --warning=no-file-changed --ignore-failed-read \
               -czf "releases/${safe_name}.tar.gz" "mirrors/${safe_name}"
 
@@ -152,30 +138,42 @@ jobs:
           echo "Updated: $updated" >> mirror-index.md
           echo "Skipped: $skipped" >> mirror-index.md
           echo "Failed: $failed" >> mirror-index.md
-          # 生成 HTML Dashboard
+
+          # =========================
+          # Generate Advanced Dashboard
+          # =========================
+
           echo "<!DOCTYPE html>" > dashboard.html
-          echo "<html><head><meta charset='UTF-8'>" >> dashboard.html
-          echo "<title>Mirror Dashboard</title>" >> dashboard.html
+          echo "<html><head><meta charset='UTF-8'><title>Mirror Dashboard</title>" >> dashboard.html
+
           echo "<style>
-          body { font-family: Arial; background:#f5f5f5; padding:20px;}
-          table { border-collapse: collapse; width:100%; background:white;}
-          th, td { border:1px solid #ddd; padding:8px; }
-          th { background:#222; color:white;}
-          .updated { color:green; font-weight:bold;}
-          .skipped { color:gray;}
-          .failed { color:red; font-weight:bold;}
-          </style>" >> dashboard.html
-          echo "</head><body>" >> dashboard.html
+          body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f4f6f8;padding:30px}
+          .dark{background:#1e1e1e;color:#ddd}
+          button{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;background:#007bff;color:white}
+          .dark button{background:#444}
+          table{border-collapse:collapse;width:100%;margin-top:20px;background:white}
+          .dark table{background:#2a2a2a}
+          th,td{padding:10px;text-align:left}
+          th{background:#111;color:white}
+          tr:nth-child(even){background:#f2f2f2}
+          .dark tr:nth-child(even){background:#333}
+          .status-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+          .updated-dot{background:#28a745}
+          .skipped-dot{background:#6c757d}
+          .failed-dot{background:#dc3545}
+          a{text-decoration:none;color:#007bff}
+          .dark a{color:#4da3ff}
+          </style></head><body>" >> dashboard.html
 
           echo "<h1>Mirror Dashboard</h1>" >> dashboard.html
-          echo "<p>Last Run: $(date -u)</p>" >> dashboard.html
-          echo "<p>Updated: $updated | Skipped: $skipped | Failed: $failed</p>" >> dashboard.html
+          echo "<button onclick=\"document.body.classList.toggle('dark')\">Toggle Dark Mode</button>" >> dashboard.html
+          echo "<p id='stats'></p>" >> dashboard.html
 
-          echo "<table>" >> dashboard.html
+          echo "<table id='mirrorTable'>" >> dashboard.html
           echo "<tr><th>Repository</th><th>Upstream SHA</th><th>Previous SHA</th><th>Status</th></tr>" >> dashboard.html
 
           while read line; do
-             if [[ $line == "### "* ]]; then
+            if [[ $line == "### "* ]]; then
               repo_name=${line#"### "}
               read upstream_line
               read prev_line
@@ -186,25 +184,35 @@ jobs:
               prev=${prev_line#"- Previous SHA: "}
               status=${status_line#"- Status: "}
 
-              class="skipped"
-              [[ $status == Updated* ]] && class="updated"
-              [[ $status == Failed* ]] && class="failed"
+              dot="skipped-dot"
+              [[ $status == Updated* ]] && dot="updated-dot"
+              [[ $status == Failed* ]] && dot="failed-dot"
 
-              echo "<tr>
-              <td>$repo_name</td>
-              <td>${upstream:-"-"}</td>
-              <td>${prev:-"-"}</td>
-              <td class='$class'>$status</td>
-              </tr>" >> dashboard.html
-             fi
+              echo "<tr>" >> dashboard.html
+              echo "<td><a href='https://github.com/$repo_name' target='_blank'>$repo_name</a></td>" >> dashboard.html
+              echo "<td>${upstream:0:7}</td>" >> dashboard.html
+              echo "<td>${prev:0:7}</td>" >> dashboard.html
+              echo "<td><span class='status-dot $dot'></span>$status</td>" >> dashboard.html
+              echo "</tr>" >> dashboard.html
+            fi
           done < mirror-index.md
 
-          echo "</table></body></html>" >> dashboard.html
+          echo "</table>" >> dashboard.html
+
+          echo "<script>
+          const rows=Array.from(document.querySelectorAll('#mirrorTable tr')).slice(1);
+          rows.sort((a,b)=>b.cells[3].innerText.localeCompare(a.cells[3].innerText));
+          rows.forEach(r=>document.querySelector('#mirrorTable').appendChild(r));
+          document.getElementById('stats').innerText=
+          'Last Run: $(date -u) | Updated: $updated | Skipped: $skipped | Failed: $failed';
+          </script>" >> dashboard.html
+
+          echo "</body></html>" >> dashboard.html
 
       - name: Commit state
         run: |
           git config user.name "mirror-bot"
           git config user.email "mirror@bot"
           git add .mirror-state mirror-index.md dashboard.html || true
-          git commit -m "update mirror state" || true
+          git commit -m "update mirror state & dashboard" || true
           git push
