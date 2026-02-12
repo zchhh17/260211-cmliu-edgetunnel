@@ -76,12 +76,14 @@ jobs:
             fi
 
             if [ "$upstream_sha" = "$last_sha" ]; then
-              echo "⏭ No changes"
-              echo "### $repo" >> mirror-index.md
-              echo "- Status: Skipped (No change)" >> mirror-index.md
-              echo "" >> mirror-index.md
-              skipped=$((skipped+1))
-              continue
+             echo "⏭ No changes"
+             echo "### $repo" >> mirror-index.md
+             echo "- Upstream SHA: $upstream_sha" >> mirror-index.md
+             echo "- Previous SHA: $last_sha" >> mirror-index.md
+             echo "- Status: Skipped (No change)" >> mirror-index.md
+             echo "" >> mirror-index.md
+             skipped=$((skipped+1))
+             continue
             fi
 
             dir="mirrors/$safe_name"
