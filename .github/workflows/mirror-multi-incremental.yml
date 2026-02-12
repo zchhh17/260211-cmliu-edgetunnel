@@ -94,7 +94,7 @@ jobs:
             cd "$dir"
 
             git remote add target https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
-            retry git push target --all --prune || retry git push target --tags || {
+            retry git push target --all --prune retry git push target --tags || {
               echo "❌ Push failed"
               cd -
               failed=$((failed+1))
