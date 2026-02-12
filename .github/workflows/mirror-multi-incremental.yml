@@ -85,7 +85,7 @@ jobs:
             dir="mirrors/$safe_name"
             rm -rf "$dir"
 
-            retry git clone --mirror https://github.com/$repo.git "$dir" || {
+            retry git clone --bare https://github.com/$repo.git "$dir" || {
               echo "❌ Clone failed"
               failed=$((failed+1))
               continue
