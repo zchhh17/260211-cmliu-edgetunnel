@@ -95,10 +95,17 @@ jobs:
 
             git remote add target https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
 
-            git update-ref -d refs/heads/infra 2>/dev/null || true
+            # 只推 heads
+            retry git push target 'refs/heads/*:refs/heads/*' --prune || {
+              echo "❌ Push heads failed"
+              cd -
+              failed=$((failed+1))
+              continue
+            }
 
-            retry git push target --mirror --prune || {
-              echo "❌ Push failed"
+            # 只推 tags
+            retry git push target 'refs/tags/*:refs/tags/*' || {
+              echo "❌ Push tags failed"
               cd -
               failed=$((failed+1))
               continue
