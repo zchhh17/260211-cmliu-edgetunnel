@@ -150,11 +150,59 @@ jobs:
           echo "Updated: $updated" >> mirror-index.md
           echo "Skipped: $skipped" >> mirror-index.md
           echo "Failed: $failed" >> mirror-index.md
+          # 生成 HTML Dashboard
+          echo "<!DOCTYPE html>" > dashboard.html
+          echo "<html><head><meta charset='UTF-8'>" >> dashboard.html
+          echo "<title>Mirror Dashboard</title>" >> dashboard.html
+          echo "<style>
+          body { font-family: Arial; background:#f5f5f5; padding:20px;}
+          table { border-collapse: collapse; width:100%; background:white;}
+          th, td { border:1px solid #ddd; padding:8px; }
+          th { background:#222; color:white;}
+          .updated { color:green; font-weight:bold;}
+          .skipped { color:gray;}
+          .failed { color:red; font-weight:bold;}
+          </style>" >> dashboard.html
+          echo "</head><body>" >> dashboard.html
+
+          echo "<h1>Mirror Dashboard</h1>" >> dashboard.html
+          echo "<p>Last Run: $(date -u)</p>" >> dashboard.html
+          echo "<p>Updated: $updated | Skipped: $skipped | Failed: $failed</p>" >> dashboard.html
+
+          echo "<table>" >> dashboard.html
+          echo "<tr><th>Repository</th><th>Upstream SHA</th><th>Previous SHA</th><th>Status</th></tr>" >> dashboard.html
+
+          while read line; do
+             if [[ $line == "### "* ]]; then
+              repo_name=${line#"### "}
+              read upstream_line
+              read prev_line
+              read status_line
+              read blank
+
+              upstream=${upstream_line#"- Upstream SHA: "}
+              prev=${prev_line#"- Previous SHA: "}
+              status=${status_line#"- Status: "}
+
+              class="skipped"
+              [[ $status == Updated* ]] && class="updated"
+              [[ $status == Failed* ]] && class="failed"
+
+              echo "<tr>
+              <td>$repo_name</td>
+              <td>${upstream:-"-"}</td>
+              <td>${prev:-"-"}</td>
+              <td class='$class'>$status</td>
+              </tr>" >> dashboard.html
+             fi
+          done < mirror-index.md
+
+          echo "</table></body></html>" >> dashboard.html
 
       - name: Commit state
         run: |
           git config user.name "mirror-bot"
           git config user.email "mirror@bot"
-          git add .mirror-state mirror-index.md || true
+          git add .mirror-state mirror-index.md dashboard.html || true
           git commit -m "update mirror state" || true
           git push
