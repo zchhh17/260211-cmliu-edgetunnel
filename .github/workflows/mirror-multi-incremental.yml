@@ -96,7 +96,7 @@ jobs:
             git remote add target https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
 
             # 只推 heads
-            retry git push target 'refs/heads/*:refs/heads/*' --prune || {
+            retry git push target 'refs/heads/*:refs/heads/*'  || {
               echo "❌ Push heads failed"
               cd -
               failed=$((failed+1))
