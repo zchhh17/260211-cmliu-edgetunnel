@@ -12,14 +12,18 @@ th, td { border:1px solid #ddd; padding:8px; }
 th { background:#222; color:white;}
 .updated { color:green; font-weight:bold;}
 .skipped { color:gray;}
+input { padding:6px; width:250px; margin-bottom:10px; }
 </style>
 </head>
 <body>
+
 <h1>Mirror Dashboard</h1>
-<p>Last Run: Fri Feb 13 13:52:14 UTC 2026</p>
+<p>Last Run: Fri Feb 13 14:36:03 UTC 2026</p>
 <p>Updated: 0 | Skipped: 1 | Failed: 0</p>
 
-<table>
+<input type="text" id="searchBox" placeholder="Search repository...">
+
+<table id="mirrorTable">
 <tr>
 <th>Repository</th>
 <th>Latest Tag</th>
@@ -43,14 +47,26 @@ th { background:#222; color:white;}
 
 <script>
 new Chart(document.getElementById('chart'), {
-    type: 'bar',
-    data: {
-        labels: ['Updated','Skipped','Failed'],
-        datasets: [{
-            label: 'Last Run',
-            data: [0,1,0]
-        }]
-    }
+          type: 'bar',
+          data: {
+              labels: ['Updated','Skipped','Failed'],
+              datasets: [{
+                   label: 'Last Run',
+                   data: [0,1,0]
+              }]
+          }
+});
+
+// 🔎 搜索功能
+document.getElementById('searchBox').addEventListener('keyup', function() {
+  const filter = this.value.toLowerCase();
+  const rows = document.querySelectorAll('#mirrorTable tr');
+
+  rows.forEach((row, index) => {
+    if (index === 0) return;
+    const text = row.innerText.toLowerCase();
+    row.style.display = text.includes(filter) ? '' : 'none';
+  });
 });
 </script>
 
