@@ -104,14 +104,18 @@ jobs:
           th { background:#222; color:white;}
           .updated { color:green; font-weight:bold;}
           .skipped { color:gray;}
+          input { padding:6px; width:250px; margin-bottom:10px; }
           </style>
           </head>
           <body>
+
           <h1>Mirror Dashboard</h1>
           <p>Last Run: $(date)</p>
           <p>Updated: $UPDATED | Skipped: $SKIPPED | Failed: $FAILED</p>
 
-          <table>
+          <input type="text" id="searchBox" placeholder="Search repository...">
+
+          <table id="mirrorTable">
           <tr>
           <th>Repository</th>
           <th>Latest Tag</th>
@@ -127,14 +131,26 @@ jobs:
 
           <script>
           new Chart(document.getElementById('chart'), {
-              type: 'bar',
-              data: {
-                  labels: ['Updated','Skipped','Failed'],
-                  datasets: [{
-                      label: 'Last Run',
-                      data: [$UPDATED,$SKIPPED,$FAILED]
-                  }]
-              }
+                    type: 'bar',
+                    data: {
+                        labels: ['Updated','Skipped','Failed'],
+                        datasets: [{
+                             label: 'Last Run',
+                             data: [$UPDATED,$SKIPPED,$FAILED]
+                        }]
+                    }
+          });
+
+          // 🔎 搜索功能
+          document.getElementById('searchBox').addEventListener('keyup', function() {
+            const filter = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#mirrorTable tr');
+
+            rows.forEach((row, index) => {
+              if (index === 0) return;
+              const text = row.innerText.toLowerCase();
+              row.style.display = text.includes(filter) ? '' : 'none';
+            });
           });
           </script>
 
