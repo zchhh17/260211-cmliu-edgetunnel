@@ -1,0 +1,158 @@
+name: Mirror Sync
+
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: "0 */6 * * *"
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout infra branch
+        uses: actions/checkout@v4
+        with:
+          ref: infra
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Run Mirror Script
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -Eeuo pipefail
+
+          mkdir -p mirrors
+          mkdir -p public/history
+          mkdir -p public/releases
+
+          UPDATED=0
+          SKIPPED=0
+          FAILED=0
+          TABLE_ROWS=""
+
+          while IFS= read -r repo || [ -n "$repo" ]; do
+            [ -z "$repo" ] && continue
+
+            echo "==== Processing $repo ===="
+
+            NAME=$(echo "$repo" | tr '/' '-')
+            TARGET_REPO="https://github.com/${{ github.repository_owner }}/260211-$NAME.git"
+
+            UPSTREAM_HEAD=$(git ls-remote https://github.com/$repo.git HEAD | awk '{print $1}')
+
+            if [ -f mirrors/$NAME.sha ]; then
+              PREV_HEAD=$(cat mirrors/$NAME.sha)
+            else
+              PREV_HEAD="none"
+            fi
+
+            DEFAULT_BRANCH=$(git ls-remote --symref https://github.com/$repo.git HEAD | grep ref | sed 's#.*/##')
+            BETA_BRANCH=$(git ls-remote https://github.com/$repo.git refs/heads/beta2.0 | awk '{print $1}')
+
+            if [ "$UPSTREAM_HEAD" = "$PREV_HEAD" ]; then
+              STATUS="Skipped (No change)"
+              CLASS="skipped"
+              SKIPPED=$((SKIPPED+1))
+            else
+              git clone --mirror https://github.com/$repo.git mirrors/$NAME
+              cd mirrors/$NAME
+
+              git push --mirror $TARGET_REPO || true
+
+              cd ../..
+
+              echo "$UPSTREAM_HEAD" > mirrors/$NAME.sha
+
+              STATUS="Updated"
+              CLASS="updated"
+              UPDATED=$((UPDATED+1))
+            fi
+
+            RELEASE_JSON=$(curl -s https://api.github.com/repos/$repo/releases/latest)
+            TAG=$(echo "$RELEASE_JSON" | jq -r '.tag_name // "none"')
+            ASSET_URL=$(echo "$RELEASE_JSON" | jq -r '.assets[0].browser_download_url // empty')
+
+            if [ -n "$ASSET_URL" ]; then
+              mkdir -p public/releases/$NAME/$TAG
+              curl -L -o public/releases/$NAME/$TAG/asset.zip "$ASSET_URL"
+            fi
+
+            echo "<p>$repo | $UPSTREAM_HEAD | $TAG | $(date)</p>" >> public/history/$NAME.html
+
+            TABLE_ROWS="$TABLE_ROWS
+            <tr>
+              <td>$repo</td>
+              <td>$DEFAULT_BRANCH</td>
+              <td>${BETA_BRANCH:-none}</td>
+              <td>$TAG</td>
+              <td>$UPSTREAM_HEAD</td>
+              <td>$PREV_HEAD</td>
+              <td class='$CLASS'>$STATUS</td>
+            </tr>"
+
+          done < mirror-list.txt
+
+          cat > public/dashboard.html <<EOF
+          <!DOCTYPE html>
+          <html>
+          <head>
+          <meta charset='UTF-8'>
+          <title>Mirror Dashboard</title>
+          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+          <style>
+          body { font-family: Arial; background:#f5f5f5; padding:20px;}
+          table { border-collapse: collapse; width:100%; background:white;}
+          th, td { border:1px solid #ddd; padding:8px; }
+          th { background:#222; color:white;}
+          .updated { color:green; font-weight:bold;}
+          .skipped { color:gray;}
+          .failed { color:red; font-weight:bold;}
+          </style>
+          </head>
+          <body>
+          <h1>Mirror Dashboard</h1>
+          <p>Last Run: $(date)</p>
+          <p>Updated: $UPDATED | Skipped: $SKIPPED | Failed: $FAILED</p>
+
+          <table>
+          <tr>
+          <th>Repository</th>
+          <th>Main</th>
+          <th>Beta2.0</th>
+          <th>Latest Release</th>
+          <th>Upstream SHA</th>
+          <th>Previous SHA</th>
+          <th>Status</th>
+          </tr>
+          $TABLE_ROWS
+          </table>
+
+          <canvas id="chart" width="400" height="120"></canvas>
+
+          <script>
+          new Chart(document.getElementById('chart'), {
+              type: 'bar',
+              data: {
+                  labels: ['Updated','Skipped','Failed'],
+                  datasets: [{
+                      label: 'Last Run',
+                      data: [$UPDATED,$SKIPPED,$FAILED]
+                  }]
+              }
+          });
+          </script>
+
+          </body>
+          </html>
+          EOF
+
+      - name: Commit Dashboard
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add public mirrors/*.sha || true
+          git commit -m "Update dashboard" || true
+          git push origin infra
