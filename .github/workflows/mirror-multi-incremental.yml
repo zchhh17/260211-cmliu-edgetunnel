@@ -58,7 +58,9 @@ jobs:
             safe_name=$(echo $repo | tr '/' '-')
             state_file=".mirror-state/${safe_name}.sha"
 
-            upstream_sha=$(git ls-remote https://github.com/$repo.git HEAD | cut -f1 || echo "")
+            #upstream_sha=$(git ls-remote https://github.com/$repo.git HEAD | cut -f1 || echo "") # 只对main更新有效
+            
+            upstream_sha=$(git ls-remote https://github.com/$repo.git | sha1sum | cut -d' ' -f1)  # 全量更新
 
             if [ -z "$upstream_sha" ]; then
               failed=$((failed+1))
