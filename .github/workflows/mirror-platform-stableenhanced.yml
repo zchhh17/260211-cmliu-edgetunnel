@@ -1,0 +1,214 @@
+name: Mirror Platform (Stable Enhanced)
+
+on:
+  workflow_dispatch:
+  # 如需定时运行，取消下面注释
+  # schedule:
+  #   - cron: '0 */6 * * *'
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git curl
+
+      - name: Run Mirror Platform
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          set -Eeuo pipefail
+
+          mkdir -p mirrors
+          mkdir -p .mirror-state
+          mkdir -p releases-assets
+
+          echo "# Mirror Index" > mirror-index.md
+          echo "Run time: $(date -u)" >> mirror-index.md
+          echo "" >> mirror-index.md
+
+          updated=0
+          skipped=0
+          failed=0
+
+          while read repo; do
+            [ -z "$repo" ] && continue
+
+            safe_name=$(echo $repo | tr '/' '-')
+            state_file=".mirror-state/${safe_name}.sig"
+
+            # ===== Git 全检测 =====
+            git_hash=$(git ls-remote https://github.com/$repo.git | sha1sum | cut -d' ' -f1)
+
+            # ===== Release 检测 =====
+            release_json=$(curl -s https://api.github.com/repos/$repo/releases/latest || echo "")
+            release_sig=$(echo "$release_json" | sha1sum | cut -d' ' -f1)
+
+            upstream_sig=$(echo "$git_hash$release_sig" | sha1sum | cut -d' ' -f1)
+
+            last_sig=""
+            [ -f "$state_file" ] && last_sig=$(cat "$state_file")
+
+            if [ "$upstream_sig" = "$last_sig" ]; then
+              status="Skipped"
+              skipped=$((skipped+1))
+            else
+              status="Updated"
+              updated=$((updated+1))
+
+              # ===== 下载 Release 资产 =====
+              assets_dir="releases-assets/$safe_name"
+              mkdir -p "$assets_dir"
+
+              echo "$release_json" | grep '"browser_download_url"' | cut -d '"' -f4 | while read asset; do
+                file_name=$(basename "$asset")
+                curl -L -o "$assets_dir/$file_name" "$asset"
+              done
+
+              echo "$upstream_sig" > "$state_file"
+            fi
+
+            # ===== 解析 Release 信息 =====
+            release_name=$(echo "$release_json" | grep '"name":' | head -n1 | cut -d '"' -f4)
+            release_url=$(echo "$release_json" | grep '"html_url":' | head -n1 | cut -d '"' -f4)
+            release_date=$(echo "$release_json" | grep '"published_at":' | head -n1 | cut -d '"' -f4)
+
+            release_name=${release_name:-none}
+            release_url=${release_url:-https://github.com/$repo/releases}
+            release_date=${release_date:-none}
+
+            echo "### $repo" >> mirror-index.md
+            echo "- Signature: $upstream_sig" >> mirror-index.md
+            echo "- Latest Release: $release_name" >> mirror-index.md
+            echo "- Release URL: $release_url" >> mirror-index.md
+            echo "- Published: $release_date" >> mirror-index.md
+            echo "- Status: $status" >> mirror-index.md
+            echo "" >> mirror-index.md
+
+          done < mirror-list.txt
+
+          # ======================
+          # 生成 Dashboard 页面
+          # ======================
+
+          echo "<!DOCTYPE html>
+          <html>
+          <head>
+          <meta charset='UTF-8'>
+          <meta http-equiv='refresh' content='120'>
+          <title>Mirror Portal</title>
+          <style>
+          body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f4f6f8;padding:30px}
+          .dark{background:#1e1e1e;color:#ddd}
+          button{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;background:#007bff;color:white}
+          .dark button{background:#444}
+          table{border-collapse:collapse;width:100%;margin-top:20px;background:white}
+          .dark table{background:#2a2a2a}
+          th,td{padding:10px;text-align:left}
+          th{background:#111;color:white}
+          tr:nth-child(even){background:#f2f2f2}
+          .dark tr:nth-child(even){background:#333}
+          a{text-decoration:none;color:#007bff}
+          .dark a{color:#4da3ff}
+          </style>
+          </head>
+          <body>
+
+          <h1>Mirror Portal</h1>
+          <button onclick=\"document.body.classList.toggle('dark')\">Toggle Dark Mode</button>
+          <input type='text' id='searchBox' placeholder='Search repository...' style='padding:6px;width:250px;margin-top:10px'>
+          <p>Updated: $updated | Skipped: $skipped | Failed: $failed</p>
+
+          <table id='mirrorTable'>
+          <tr>
+          <th>Repository</th>
+          <th>Latest Release</th>
+          <th>Published</th>
+          <th>Status</th>
+          </tr>" > dashboard.html
+
+          while read line; do
+            if [[ $line == "### "* ]]; then
+              repo=${line#"### "}
+              read sig_line
+              read release_line
+              read url_line
+              read date_line
+              read status_line
+              read blank
+
+              release=${release_line#"- Latest Release: "}
+              url=${url_line#"- Release URL: "}
+              date=${date_line#"- Published: "}
+              status=${status_line#"- Status: "}
+
+              echo "<tr>
+              <td><a href='https://github.com/$repo' target='_blank'>$repo</a></td>
+              <td><a href='$url' target='_blank'>$release</a></td>
+              <td>${date:0:10}</td>
+              <td>$status</td>
+              </tr>" >> dashboard.html
+            fi
+          done < mirror-index.md
+
+          echo "</table>
+
+          <p><a href='history.html'>View Version History</a></p>
+
+          <script>
+          document.getElementById('searchBox').addEventListener('keyup', function() {
+            const filter = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#mirrorTable tr');
+            rows.forEach((row, index) => {
+              if(index === 0) return;
+              const text = row.innerText.toLowerCase();
+              row.style.display = text.includes(filter) ? '' : 'none';
+            });
+          });
+          </script>
+
+          </body></html>" >> dashboard.html
+
+          # ======================
+          # 生成 History 页面
+          # ======================
+
+          echo "<!DOCTYPE html>
+          <html>
+          <head>
+          <meta charset='UTF-8'>
+          <title>Version History</title>
+          <style>
+          body{font-family:Arial;padding:30px;background:#f5f5f5}
+          a{display:block;margin:5px 0;color:#007bff}
+          </style>
+          </head>
+          <body>
+          <h1>Version History</h1>" > history.html
+
+          for dir in releases-assets/*; do
+            [ -d "$dir" ] || continue
+            repo_name=$(basename "$dir")
+            echo "<h2>$repo_name</h2>" >> history.html
+            for file in "$dir"/*; do
+              fname=$(basename "$file")
+              echo "<a href='$file'>$fname</a>" >> history.html
+            done
+          done
+
+          echo "</body></html>" >> history.html
+
+      - name: Commit Changes
+        run: |
+          git config user.name "mirror-bot"
+          git config user.email "mirror@bot"
+          git add .
+          git commit -m "mirror platform update" || echo "No changes"
+          git push
