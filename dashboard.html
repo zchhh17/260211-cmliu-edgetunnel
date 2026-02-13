@@ -1,40 +1,58 @@
 <!DOCTYPE html>
-<html><head><meta charset='UTF-8'><title>Mirror Dashboard</title>
+<html>
+<head>
+<meta charset='UTF-8'>
+<meta http-equiv='refresh' content='120'>
+<title>Mirror Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f4f6f8;padding:30px}
-.dark{background:#1e1e1e;color:#ddd}
-button{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;background:#007bff;color:white}
-.dark button{background:#444}
-table{border-collapse:collapse;width:100%;margin-top:20px;background:white}
-.dark table{background:#2a2a2a}
-th,td{padding:10px;text-align:left}
-th{background:#111;color:white}
-tr:nth-child(even){background:#f2f2f2}
-.dark tr:nth-child(even){background:#333}
-.status-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
-.updated-dot{background:#28a745}
-.skipped-dot{background:#6c757d}
-.failed-dot{background:#dc3545}
-a{text-decoration:none;color:#007bff}
-.dark a{color:#4da3ff}
-</style></head><body>
+body { font-family: Arial; background:#f5f5f5; padding:20px;}
+table { border-collapse: collapse; width:100%; background:white;}
+th, td { border:1px solid #ddd; padding:8px; }
+th { background:#222; color:white;}
+.updated { color:green; font-weight:bold;}
+.skipped { color:gray;}
+</style>
+</head>
+<body>
 <h1>Mirror Dashboard</h1>
-<button onclick="document.body.classList.toggle('dark')">Toggle Dark Mode</button>
-<p id='stats'></p>
-<table id='mirrorTable'>
-<tr><th>Repository</th><th>Upstream SHA</th><th>Previous SHA</th><th>Status</th></tr>
+<p>Last Run: Fri Feb 13 13:52:14 UTC 2026</p>
+<p>Updated: 0 | Skipped: 1 | Failed: 0</p>
+
+<table>
 <tr>
-<td><a href='https://github.com/cmliu/edgetunnel' target='_blank'>cmliu/edgetunnel</a></td>
-<td>c7147a6</td>
-<td>ce7ef9f</td>
-<td><span class='status-dot updated-dot'></span>Updated</td>
+<th>Repository</th>
+<th>Latest Tag</th>
+<th>Published</th>
+<th>Upstream SHA</th>
+<th>Previous SHA</th>
+<th>Status</th>
 </tr>
+
+  <tr>
+    <td>cmliu/edgetunnel</td>
+    <td>none</td>
+    <td>none</td>
+    <td>ce7ef9fd60dfd33f8b9bcd7f63fb692e65775a16</td>
+    <td>ce7ef9fd60dfd33f8b9bcd7f63fb692e65775a16</td>
+    <td class='skipped'>Skipped</td>
+  </tr>
 </table>
+
+<canvas id="chart" width="400" height="120"></canvas>
+
 <script>
-const rows=Array.from(document.querySelectorAll('#mirrorTable tr')).slice(1);
-rows.sort((a,b)=>b.cells[3].innerText.localeCompare(a.cells[3].innerText));
-rows.forEach(r=>document.querySelector('#mirrorTable').appendChild(r));
-document.getElementById('stats').innerText=
-'Last Run: Fri Feb 13 07:19:28 UTC 2026 | Updated: 1 | Skipped: 0 | Failed: 0';
+new Chart(document.getElementById('chart'), {
+    type: 'bar',
+    data: {
+        labels: ['Updated','Skipped','Failed'],
+        datasets: [{
+            label: 'Last Run',
+            data: [0,1,0]
+        }]
+    }
+});
 </script>
-</body></html>
+
+</body>
+</html>
