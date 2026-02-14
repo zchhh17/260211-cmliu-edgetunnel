@@ -151,13 +151,12 @@ jobs:
           EOF
           
           HISTORY_ROWS=""
+          gh api repos/${{ github.repository }}/releases --paginate > releases.json
+
           while read repo; do
             [ -z "$repo" ] && continue
-            safe_name=$(echo "$repo" | tr '/' '-')
 
-            releases=$(gh release list --limit 5 --repo ${{ github.repository }} | awk '{print $1}')
-
-            for tag in $releases; do
+            for tag in $(jq -r '.[].tag_name' releases.json | head -n 5); do
               HISTORY_ROWS="$HISTORY_ROWS
               <tr>
                 <td>$repo</td>
