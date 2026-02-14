@@ -28,67 +28,50 @@ jobs:
           mkdir -p history
           mkdir -p releases
 
+          # 统计计数
           UPDATED=0
           SKIPPED=0
           FAILED=0
-          TABLE_ROWS=""
 
-          while IFS= read -r repo || [ -n "$repo" ]; do
+          CARDS=""
+
+          while read repo; do
             [ -z "$repo" ] && continue
 
-            echo "==== Processing $repo ===="
+            safe_name=$(echo "$repo" | tr '/' '-')
+            state_file=".mirror-state/${safe_name}.sha"
 
-            NAME=$(echo "$repo" | tr '/' '-')
-            TARGET_REPO="https://github.com/${{ github.repository_owner }}/260211-$NAME.git"
+            upstream_sha=$(git ls-remote https://github.com/$repo.git HEAD | cut -f1 || echo "")
+            last_sha=""
+            [ -f "$state_file" ] && last_sha=$(cat "$state_file")
 
-            UPSTREAM_HEAD=$(git ls-remote https://github.com/$repo.git HEAD | awk '{print $1}')
+            status="Skipped"
+            badge_class="skipped"
 
-            if [ -f mirrors/$NAME.sha ]; then
-              PREV_HEAD=$(cat mirrors/$NAME.sha)
-            else
-              PREV_HEAD="none"
-            fi
-
-            if [ "$UPSTREAM_HEAD" = "$PREV_HEAD" ]; then
-              STATUS="Skipped"
-              CLASS="skipped"
-              SKIPPED=$((SKIPPED+1))
-            else
-              git clone --mirror https://github.com/$repo.git mirrors/$NAME
-              cd mirrors/$NAME
-              git push --mirror https://github.com/${{ github.repository }}.git || true
-              cd ../..
-
-              echo "$UPSTREAM_HEAD" > mirrors/$NAME.sha
-              STATUS="Updated"
-              CLASS="updated"
+            if [ -z "$upstream_sha" ]; then
+              status="Failed"
+              badge_class="failed"
+              FAILED=$((FAILED+1))
+            elif [ "$upstream_sha" != "$last_sha" ]; then
+              status="Updated"
+              badge_class="updated"
               UPDATED=$((UPDATED+1))
+            else
+              SKIPPED=$((SKIPPED+1))
             fi
 
-            RELEASE_JSON=$(curl -s https://api.github.com/repos/$repo/releases/latest)
-            TAG=$(echo "$RELEASE_JSON" | jq -r '.tag_name // "none"')
-            RELEASE_DATE=$(echo "$RELEASE_JSON" | jq -r '.published_at // "none"')
-            ASSET_URL=$(echo "$RELEASE_JSON" | jq -r '.assets[0].browser_download_url // empty')
-
-            if [ -n "$ASSET_URL" ]; then
-              mkdir -p releases/$NAME/$TAG
-              curl -L -o releases/$NAME/$TAG/asset.zip "$ASSET_URL"
-            fi
-
-            echo "<p>$repo | $UPSTREAM_HEAD | $TAG | $(date)</p>" >> history/$NAME.html
-
-            TABLE_ROWS="$TABLE_ROWS
-            <tr>
-              <td>$repo</td>
-              <td>$TAG</td>
-              <td>${RELEASE_DATE:0:10}</td>
-              <td>$UPSTREAM_HEAD</td>
-              <td>$PREV_HEAD</td>
-              <td class='$CLASS'>$STATUS</td>
-            </tr>"
-
+            CARDS="$CARDS
+            <div class='card'>
+              <div class='repo'>$repo</div>
+              <div class='meta'>Last check: $(date -u)</div>
+              <span class='badge $badge_class'>$status</span>
+              <hr>
+              <div class='row'><span>Upstream SHA</span><span>${upstream_sha:-N/A}</span></div>
+              <div class='row'><span>Previous SHA</span><span>${last_sha:-N/A}</span></div>
+            </div>
+            "
           done < mirror-list.txt
-
+          
           cat > dashboard.html <<EOF
           <!DOCTYPE html>
           <html>
@@ -126,7 +109,7 @@ jobs:
           <body>
 
           <h1>Mirror Dashboard</h1>
-          <p>Last Run: $(date)</p>
+          <p>Last Run: $(date -u)</p>
           <p>Updated: $UPDATED | Skipped: $SKIPPED | Failed: $FAILED</p>
 
           <div class="topbar">
@@ -148,7 +131,6 @@ jobs:
             }
           });
 
-          // 🔎 搜索
           document.getElementById('searchBox').addEventListener('input', e => {
             const v = e.target.value.toLowerCase();
             document.querySelectorAll('.card').forEach(c=>{
@@ -156,7 +138,6 @@ jobs:
             });
           });
 
-          // 🌗 暗黑模式
           const root=document.documentElement,btn=document.getElementById('themeToggle');
           if(localStorage.getItem('theme')==='dark'){root.setAttribute('data-theme','dark');btn.textContent='☀️ Light Mode'}
           btn.onclick=()=>{const d=root.getAttribute('data-theme')==='dark';
@@ -168,7 +149,6 @@ jobs:
           </body>
           </html>
           EOF
-
       - name: Commit Dashboard
         run: |
           git config user.name "github-actions"
