@@ -1,2 +1,1 @@
 cmliu/edgetunnel
-badafans/dns-proxy
