@@ -1,164 +1,92 @@
-name: Mirror Multi Portal
+name: Mirror Portal (A)
 
 on:
   workflow_dispatch:
-#  schedule:
-#    - cron: "0 */6 * * *"
+  schedule:
+    - cron: "0 */12 * * *"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
-  mirror:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout backup repo
+        uses: actions/checkout@v4
 
-      - name: Setup
+      - name: Prepare data
         run: |
-          sudo apt-get update
-          sudo apt-get install -y git jq gh
+          mkdir -p public
+          echo "[]" > public/data.json
 
-      - name: Mirror & Build Portal
-        env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+      - name: Generate portal html
         run: |
-          set -Eeuo pipefail
+          cat << 'EOF' > public/index.html
+          <!DOCTYPE html>
+          <html lang="zh-CN">
+          <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+            <title>GitHub Mirror Portal</title>
+            <style>
+              body { font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; background:#0f172a; color:#e5e7eb; padding:20px; }
+              input { width:100%; padding:10px; border-radius:6px; border:none; outline:none; }
+              .card { background:#020617; padding:12px; border-radius:10px; margin-top:12px; }
+              .ok { border-left:6px solid #22c55e; }
+              .fail { border-left:6px solid #ef4444; }
+              .name { font-size:18px; font-weight:600; }
+              .log { font-size:12px; color:#94a3b8; margin-top:4px; white-space:pre-wrap; }
+            </style>
+          </head>
+          <body>
+            <h1>📦 GitHub 备份镜像状态面板</h1>
+            <input id="search" placeholder="输入仓库名自动过滤..." />
 
-          retry() {
-            local n=1 max=3 delay=5
-            while true; do
-              "$@" && break || {
-                if [[ $n -lt $max ]]; then
-                  echo "Retry $n/$max..."
-                  ((n++))
-                  sleep $delay
-                else
-                  return 1
-                fi
+            <div id="list"></div>
+
+            <script>
+              const list = document.getElementById('list');
+              const search = document.getElementById('search');
+
+              async function load() {
+                const res = await fetch('./data.json');
+                const data = await res.json();
+                render(data);
+                search.oninput = () => {
+                  const kw = search.value.toLowerCase();
+                  render(data.filter(i => i.name.toLowerCase().includes(kw)));
+                };
               }
-            done
-          }
 
-          mkdir -p mirrors releases history .mirror-state docs
-          UPDATED=0
-          SKIPPED=0
-          FAILED=0
-          CARD_ITEMS=""
+              function render(items) {
+                list.innerHTML = items.map(i => `
+                  <div class="card ${i.ok ? 'ok' : 'fail'}">
+                    <div class="name">${i.name}</div>
+                    <div>最新提交: ${i.commit || '-'}</div>
+                    <div class="log">${i.log || ''}</div>
+                  </div>
+                `).join('');
+              }
 
-          while read repo; do
-            [ -z "$repo" ] && continue
-            echo "==== $repo ===="
+              load();
+            </script>
+          </body>
+          </html>
+          EOF
 
-            safe=$(echo "$repo" | tr '/' '-')
-            state=".mirror-state/$safe.sha"
-            last=""
-            [ -f "$state" ] && last=$(cat "$state")
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
 
-            sha=$(git ls-remote https://github.com/$repo.git refs/heads/* | sha1sum | cut -d' ' -f1 || true)
-            if [ -z "$sha" ]; then
-              FAILED=$((FAILED+1))
-              continue
-            fi
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
 
-            if [ "$sha" = "$last" ]; then
-              STATUS_CLASS="skipped"
-              STATUS_TEXT="Skipped"
-              SKIPPED=$((SKIPPED+1))
-            else
-              dir="mirrors/$safe"
-              rm -rf "$dir"
-              retry git clone --bare https://github.com/$repo.git "$dir"
-
-              cd "$dir"
-              git remote add target https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git || true
-              retry git push target 'refs/heads/*:refs/heads/*'
-              retry git push target 'refs/tags/*:refs/tags/*'
-              cd -
-
-              gh release list -R "$repo" --limit 1 --json tagName,publishedAt > "releases/$safe.json" || true
-              gh release download -R "$repo" -D "releases/$safe" || true
-
-              echo "$sha" > "$state"
-              STATUS_CLASS="updated"
-              STATUS_TEXT="Updated"
-              UPDATED=$((UPDATED+1))
-            fi
-
-            latest_tag=$(jq -r '.[0].tagName // "-"' "releases/$safe.json" 2>/dev/null || echo "-")
-            published=$(jq -r '.[0].publishedAt // "-"' "releases/$safe.json" 2>/dev/null || echo "-")
-
-            CARD_ITEMS+=$(cat <<ROW
-<div class="card" data-status="$STATUS_CLASS" data-repo="$repo">
-  <div class="repo">$repo</div>
-  <div class="meta">Latest Tag: $latest_tag</div>
-  <div class="meta">Published: $published</div>
-  <div class="meta">Upstream Hash: $sha</div>
-  <div><span class="badge $STATUS_CLASS">$STATUS_TEXT</span></div>
-</div>
-ROW
-)
-
-          done < mirror-list.txt
-
-          cat > docs/dashboard.html <<EOF
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Mirror Portal</title>
-<style>
-:root{--bg:#f5f5f5;--fg:#111;--card:#fff;--muted:#6b7280;--ok:#22c55e;--skip:#9ca3af;--fail:#ef4444}
-[data-theme="dark"]{--bg:#0f1115;--fg:#e6e6e6;--card:#151923;--muted:#9ca3af}
-body{margin:0;font-family:system-ui,Arial;background:var(--bg);color:var(--fg)}
-.header{padding:20px;display:flex;gap:12px;justify-content:space-between;align-items:center}
-.controls{display:flex;gap:10px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;padding:12px}
-.card{background:var(--card);border-radius:14px;padding:14px;box-shadow:0 6px 20px rgba(0,0,0,.06)}
-.repo{font-weight:700}
-.meta{font-size:12px;color:var(--muted);word-break:break-all}
-.badge{padding:2px 8px;border-radius:999px;color:#fff;font-size:12px}
-.updated{background:var(--ok)} .skipped{background:var(--skip)} .failed{background:var(--fail)}
-</style>
-</head>
-<body>
-<div class="header">
-  <div>
-    <h1>Mirror Portal</h1>
-    <div class="meta">Updated: $UPDATED · Skipped: $SKIPPED · Failed: $FAILED</div>
-  </div>
-  <div class="controls">
-    <input id="search" placeholder="Search...">
-    <button id="theme">🌙 Dark</button>
-  </div>
-</div>
-<div class="grid" id="grid">
-$CARD_ITEMS
-</div>
-<script>
-const cards=[...document.querySelectorAll('.card')];
-document.getElementById('search').oninput=e=>{
-  const f=e.target.value.toLowerCase();
-  cards.forEach(c=>c.style.display=c.innerText.toLowerCase().includes(f)?'':'none');
-};
-const root=document.documentElement,btn=document.getElementById('theme');
-if(localStorage.theme==='dark'){root.setAttribute('data-theme','dark');btn.textContent='☀️ Light'}
-btn.onclick=()=>{const d=root.getAttribute('data-theme')==='dark';
-  if(d){root.removeAttribute('data-theme');localStorage.theme='light';btn.textContent='🌙 Dark'}
-  else{root.setAttribute('data-theme','dark');localStorage.theme='dark';btn.textContent='☀️ Light'}
-};
-const pr={updated:1,skipped:2,failed:3};
-cards.sort((a,b)=>pr[a.dataset.status]-pr[b.dataset.status]||a.dataset.repo.localeCompare(b.dataset.repo))
-     .forEach(c=>grid.appendChild(c));
-</script>
-</body>
-</html>
-EOF
-
-      - name: Commit & Publish Pages
-        run: |
-          git config user.name mirror-bot
-          git config user.email mirror@bot
-          git add docs releases history .mirror-state || true
-          git commit -m "update mirror portal" || true
-          git push
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
