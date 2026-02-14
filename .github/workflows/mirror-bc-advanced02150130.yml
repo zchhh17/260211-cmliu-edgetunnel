@@ -73,19 +73,30 @@ jobs:
               cd -
 
               if [ -n "$last_sha" ]; then
-                cd mirrors/$safe_name
-                git diff "$last_sha" "$upstream_sha" > diff.patch || true
-                cd -
+              cd mirrors/$safe_name
 
-                {
+              if git cat-file -e "$last_sha" 2>/dev/null && git cat-file -e "$upstream_sha" 2>/dev/null; then
+                git diff "$last_sha" "$upstream_sha" > diff.patch || true
+              else
+                echo "⚠️ One of the SHAs not found locally, skip diff"
+                rm -f diff.patch
+              fi
+
+              cd -
+
+              if [ -f mirrors/$safe_name/diff.patch ]; then
+              {
                   echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Diff - $repo</title></head><body style='font-family:monospace;background:#0f1115;color:#e5e7eb;padding:20px'>"
                   echo "<h1>Diff: $repo</h1><p>$last_sha → $upstream_sha</p><pre>"
                   sed -e 's/^+/<span style="color:#22c55e">+/' \
                       -e 's/^-/<span style="color:#ef4444">-/' \
-                      -e 's/^ /<span style="color:#9ca3af"> /' diff.patch
+                      -e 's/^ /<span style="color:#9ca3af"> /' mirrors/$safe_name/diff.patch
                   echo "</pre></body></html>"
                 } > diff-$safe_name.html
+              else
+                echo "⚠️ diff.patch not generated, skip diff html"
               fi
+            fi
 
               echo "$upstream_sha" > "$state_file"
               UPDATED=$((UPDATED+1))
