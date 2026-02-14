@@ -34,8 +34,8 @@ hr{border:none;border-top:1px dashed var(--border);margin:8px 0}
 <body>
 
 <h1>Mirror Dashboard</h1>
-<p>Last Run: Sat Feb 14 12:37:54 UTC 2026</p>
-<p>Updated: 1 | Skipped: 0 | Failed: 0</p>
+<p>Last Run: Sat Feb 14 12:43:40 UTC 2026</p>
+<p>Updated: 2 | Skipped: 0 | Failed: 0</p>
 
 <div class="topbar">
   <input id="searchBox" placeholder="Search repository...">
@@ -46,11 +46,20 @@ hr{border:none;border-top:1px dashed var(--border);margin:8px 0}
 
   <div class='card'>
     <div class='repo'>cmliu/edgetunnel</div>
-    <div class='meta'>Last check: Sat Feb 14 12:37:54 UTC 2026</div>
+    <div class='meta'>Last check: Sat Feb 14 12:43:40 UTC 2026</div>
     <span class='badge updated'>Updated</span>
     <hr>
     <div class='row'><span>Upstream SHA</span><span>ce7ef9fd60dfd33f8b9bcd7f63fb692e65775a16</span></div>
     <div class='row'><span>Previous SHA</span><span>c7147a6023fd99335fafd1197a9c661d4f2dfa18</span></div>
+  </div>
+  
+  <div class='card'>
+    <div class='repo'>badafans/dns-proxy</div>
+    <div class='meta'>Last check: Sat Feb 14 12:43:40 UTC 2026</div>
+    <span class='badge updated'>Updated</span>
+    <hr>
+    <div class='row'><span>Upstream SHA</span><span>b46c4b8c66b70afb307528ea571b252958bf1e24</span></div>
+    <div class='row'><span>Previous SHA</span><span>N/A</span></div>
   </div>
   
 </div>
@@ -61,7 +70,7 @@ hr{border:none;border-top:1px dashed var(--border);margin:8px 0}
 new Chart(document.getElementById('chart'), {
   type: 'bar',
   data: { labels:['Updated','Skipped','Failed'],
-    datasets:[{label:'Last Run',data:[1,0,0]}]
+    datasets:[{label:'Last Run',data:[2,0,0]}]
   }
 });
 
