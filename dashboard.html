@@ -7,126 +7,77 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root {
-  --bg: #f5f5f5;
-  --fg: #111;
-  --card: #fff;
-  --th: #222;
-  --border: #ddd;
+  --bg:#f5f5f5; --fg:#111; --card:#fff; --border:#e5e7eb;
+  --ok:#22c55e; --skip:#9ca3af; --fail:#ef4444; --muted:#6b7280;
 }
 [data-theme="dark"] {
-  --bg: #0f1115;
-  --fg: #e6e6e6;
-  --card: #151923;
-  --th: #1f2937;
-  --border: #2b2f3a;
+  --bg:#0f1115; --fg:#e5e7eb; --card:#151923; --border:#2b2f3a;
 }
-body { font-family: Arial; background:var(--bg); color:var(--fg); padding:20px; transition:.2s;}
-table { border-collapse: collapse; width:100%; background:var(--card);}
-th, td { border:1px solid var(--border); padding:8px; }
-th { background:var(--th); color:white;}
-.updated { color:#22c55e; font-weight:bold;}
-.skipped { color:#9ca3af;}
-.failed { color:#ef4444; font-weight:bold;}
-input { padding:6px; width:260px; margin-bottom:10px; }
-button { padding:6px 10px; cursor:pointer; }
-.topbar { display:flex; gap:10px; align-items:center; margin-bottom:10px; }
+*{box-sizing:border-box}
+body{font-family:Arial;background:var(--bg);color:var(--fg);padding:20px;transition:.2s}
+h1{margin-bottom:6px}
+.topbar{display:flex;gap:10px;align-items:center;margin:10px 0 14px}
+input{padding:8px 10px;width:280px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--fg)}
+button{padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;box-shadow:0 6px 16px rgba(0,0,0,.05)}
+.repo{font-weight:bold;font-size:16px;word-break:break-all}
+.meta{color:var(--muted);font-size:12px;margin:6px 0}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;color:white}
+.updated{background:var(--ok)}
+.skipped{background:var(--skip)}
+.failed{background:var(--fail)}
+.row{display:flex;justify-content:space-between;gap:8px;font-size:12px;margin:6px 0}
+hr{border:none;border-top:1px dashed var(--border);margin:8px 0}
 </style>
 </head>
 <body>
 
 <h1>Mirror Dashboard</h1>
-<p>Last Run: Fri Feb 13 21:51:17 UTC 2026</p>
-<p>Updated: 0 | Skipped: 1 | Failed: 0</p>
+<p>Last Run: Sat Feb 14 05:53:39 UTC 2026</p>
+<p>Updated: 1 | Skipped: 0 | Failed: 0</p>
 
 <div class="topbar">
-  <input type="text" id="searchBox" placeholder="Search repository...">
+  <input id="searchBox" placeholder="Search repository...">
   <button id="themeToggle">🌙 Dark Mode</button>
 </div>
 
-<table id="mirrorTable">
-<thead>
-<tr>
-<th>Repository</th>
-<th>Latest Tag</th>
-<th>Published</th>
-<th>Upstream SHA</th>
-<th>Previous SHA</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
+<div id="grid" class="grid">
 
-  <tr>
-    <td>cmliu/edgetunnel</td>
-    <td>none</td>
-    <td>none</td>
-    <td>ce7ef9fd60dfd33f8b9bcd7f63fb692e65775a16</td>
-    <td>ce7ef9fd60dfd33f8b9bcd7f63fb692e65775a16</td>
-    <td class='skipped'>Skipped</td>
-  </tr>
-</tbody>
-</table>
+  <div class='card'>
+    <div class='repo'>cmliu/edgetunnel</div>
+    <div class='meta'>Last check: Sat Feb 14 05:53:39 UTC 2026</div>
+    <span class='badge updated'>Updated</span>
+    <hr>
+    <div class='row'><span>Upstream SHA</span><span>ce7ef9fd60dfd33f8b9bcd7f63fb692e65775a16</span></div>
+    <div class='row'><span>Previous SHA</span><span>c7147a6023fd99335fafd1197a9c661d4f2dfa18</span></div>
+  </div>
+  
+</div>
 
-<canvas id="chart" width="400" height="120"></canvas>
+<canvas id="chart" width="400" height="120" style="margin-top:16px"></canvas>
 
 <script>
 new Chart(document.getElementById('chart'), {
   type: 'bar',
-  data: {
-    labels: ['Updated','Skipped','Failed'],
-    datasets: [{
-      label: 'Last Run',
-      data: [0,1,0]
-    }]
+  data: { labels:['Updated','Skipped','Failed'],
+    datasets:[{label:'Last Run',data:[1,0,0]}]
   }
 });
 
-// 🔎 搜索
-document.getElementById('searchBox').addEventListener('keyup', function() {
-  const filter = this.value.toLowerCase();
-document.querySelectorAll('#mirrorTable tbody tr').forEach(row => {
-    row.style.display = row.innerText.toLowerCase().includes(filter) ? '' : 'none';
+document.getElementById('searchBox').addEventListener('input', e => {
+  const v = e.target.value.toLowerCase();
+  document.querySelectorAll('.card').forEach(c=>{
+    c.style.display = c.innerText.toLowerCase().includes(v) ? '' : 'none';
   });
 });
 
-// 🌗 暗黑模式
-const root = document.documentElement;
-const btn = document.getElementById('themeToggle');
-const saved = localStorage.getItem('theme');
-
-if (saved === 'dark') {
-  root.setAttribute('data-theme','dark');
-  btn.textContent = '☀️ Light Mode';
-}
-
-btn.onclick = () => {
-  const dark = root.getAttribute('data-theme') === 'dark';
-  if (dark) {
-    root.removeAttribute('data-theme');
-    localStorage.setItem('theme','light');
-    btn.textContent = '🌙 Dark Mode';
-  } else {
-    root.setAttribute('data-theme','dark');
-    localStorage.setItem('theme','dark');
-    btn.textContent = '☀️ Light Mode';
-  }
+const root=document.documentElement,btn=document.getElementById('themeToggle');
+if(localStorage.getItem('theme')==='dark'){root.setAttribute('data-theme','dark');btn.textContent='☀️ Light Mode'}
+btn.onclick=()=>{const d=root.getAttribute('data-theme')==='dark';
+  if(d){root.removeAttribute('data-theme');localStorage.setItem('theme','light');btn.textContent='🌙 Dark Mode'}
+  else{root.setAttribute('data-theme','dark');localStorage.setItem('theme','dark');btn.textContent='☀️ Light Mode'}
 };
-
-// 📊 状态排序：Updated > Skipped > Failed
-const priority = { 'updated': 1, 'skipped': 2, 'failed': 3 };
-const tbody = document.querySelector('#mirrorTable tbody');
-const rows = Array.from(tbody.querySelectorAll('tr'));
-
-rows.sort((a, b) => {
-  const sa = a.querySelector('td:last-child').className;
-  const sb = b.querySelector('td:last-child').className;
-  if (priority[sa] !== priority[sb]) {
-    return priority[sa] - priority[sb];
-  }
-  return a.children[0].innerText.localeCompare(b.children[0].innerText);
-});
-
-rows.forEach(r => tbody.appendChild(r));
 </script>
 
 </body>
