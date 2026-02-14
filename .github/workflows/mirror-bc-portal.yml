@@ -1,168 +1,178 @@
-name: Mirror Multi Portal
+name: Mirror Bc Portal
 
 on:
   workflow_dispatch:
-#  schedule:
-#    - cron: "0 */6 * * *"
+  # schedule:
+  #   - cron: "0 */6 * * *"
 
 jobs:
   mirror:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout infra branch
+        uses: actions/checkout@v4
+        with:
+          ref: infra
 
-      - name: Setup
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y git jq gh
+      - name: Install jq
+        run: sudo apt-get install -y jq
 
-      - name: Mirror & Build Portal
+      - name: Run Mirror Script
         env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -Eeuo pipefail
 
-          retry() {
-            local n=1
-            local max=3
-            local delay=5
-            while true; do
-              "$@" && break || {
-                if [[ $n -lt $max ]]; then
-                  echo "Retry $n/$max..."
-                  ((n++))
-                  sleep $delay
-                else
-                  return 1
-                fi
-              }
-            done
-          }
+          mkdir -p mirrors
+          mkdir -p history
+          mkdir -p releases
 
-          mkdir -p mirrors releases history .mirror-state docs
           UPDATED=0
           SKIPPED=0
           FAILED=0
-          CARD_ITEMS=""
+          TABLE_ROWS=""
 
-          while read repo; do
+          while IFS= read -r repo || [ -n "$repo" ]; do
             [ -z "$repo" ] && continue
-            echo "==== $repo ===="
 
-            safe=$(echo "$repo" | tr '/' '-')
-            state=".mirror-state/$safe.sha"
-            last=""
-            if [ -f "$state" ]; then
-              last=$(cat "$state")
+            echo "==== Processing $repo ===="
+
+            NAME=$(echo "$repo" | tr '/' '-')
+            TARGET_REPO="https://github.com/${{ github.repository_owner }}/260211-$NAME.git"
+
+            UPSTREAM_HEAD=$(git ls-remote https://github.com/$repo.git HEAD | awk '{print $1}')
+
+            if [ -f mirrors/$NAME.sha ]; then
+              PREV_HEAD=$(cat mirrors/$NAME.sha)
+            else
+              PREV_HEAD="none"
             fi
 
-            sha=$(git ls-remote https://github.com/$repo.git refs/heads/* | sha1sum | cut -d' ' -f1 || true)
-            if [ -z "$sha" ]; then
-              FAILED=$((FAILED+1))
-              continue
-            fi
-
-            if [ "$sha" = "$last" ]; then
-              STATUS_CLASS="skipped"
-              STATUS_TEXT="Skipped"
+            if [ "$UPSTREAM_HEAD" = "$PREV_HEAD" ]; then
+              STATUS="Skipped"
+              CLASS="skipped"
               SKIPPED=$((SKIPPED+1))
             else
-              dir="mirrors/$safe"
-              rm -rf "$dir"
-              retry git clone --bare https://github.com/$repo.git "$dir"
+              git clone --mirror https://github.com/$repo.git mirrors/$NAME
+              cd mirrors/$NAME
+              git push --mirror https://github.com/${{ github.repository }}.git || true
+              cd ../..
 
-              cd "$dir"
-              git remote add target https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git || true
-              retry git push target 'refs/heads/*:refs/heads/*'
-              retry git push target 'refs/tags/*:refs/tags/*'
-              cd -
-
-              gh release list -R "$repo" --limit 1 --json tagName,publishedAt > "releases/$safe.json" || true
-              gh release download -R "$repo" -D "releases/$safe" || true
-
-              echo "$sha" > "$state"
-              STATUS_CLASS="updated"
-              STATUS_TEXT="Updated"
+              echo "$UPSTREAM_HEAD" > mirrors/$NAME.sha
+              STATUS="Updated"
+              CLASS="updated"
               UPDATED=$((UPDATED+1))
             fi
 
-            latest_tag=$(jq -r '.[0].tagName // "-"' "releases/$safe.json" 2>/dev/null || echo "-")
-            published=$(jq -r '.[0].publishedAt // "-"' "releases/$safe.json" 2>/dev/null || echo "-")
+            RELEASE_JSON=$(curl -s https://api.github.com/repos/$repo/releases/latest)
+            TAG=$(echo "$RELEASE_JSON" | jq -r '.tag_name // "none"')
+            RELEASE_DATE=$(echo "$RELEASE_JSON" | jq -r '.published_at // "none"')
+            ASSET_URL=$(echo "$RELEASE_JSON" | jq -r '.assets[0].browser_download_url // empty')
 
-            CARD_ITEMS+=$(cat <<ROW
-            <div class="card" data-status="$STATUS_CLASS" data-repo="$repo">
-              <div class="repo">$repo</div>
-              <div class="meta">Latest Tag: $latest_tag</div>
-              <div class="meta">Published: $published</div>
-              <div class="meta">Upstream Hash: $sha</div>
-              <div><span class="badge $STATUS_CLASS">$STATUS_TEXT</span></div>
-            </div>
-            ROW
-            )
+            if [ -n "$ASSET_URL" ]; then
+              mkdir -p releases/$NAME/$TAG
+              curl -L -o releases/$NAME/$TAG/asset.zip "$ASSET_URL"
+            fi
 
-            done < mirror-list.txt
+            echo "<p>$repo | $UPSTREAM_HEAD | $TAG | $(date)</p>" >> history/$NAME.html
 
-            cat > docs/dashboard.html <<EOF
-            <!DOCTYPE html>
-            <html>
-            <head>
-            <meta charset="UTF-8">
-            <title>Mirror Portal</title>
-            <style>
-            :root{--bg:#f5f5f5;--fg:#111;--card:#fff;--muted:#6b7280;--ok:#22c55e;--skip:#9ca3af;--fail:#ef4444}
-            [data-theme="dark"]{--bg:#0f1115;--fg:#e6e6e6;--card:#151923;--muted:#9ca3af}
-            body{margin:0;font-family:system-ui,Arial;background:var(--bg);color:var(--fg)}
-            .header{padding:20px;display:flex;gap:12px;justify-content:space-between;align-items:center}
-            .controls{display:flex;gap:10px}
-            .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;padding:12px}
-            .card{background:var(--card);border-radius:14px;padding:14px;box-shadow:0 6px 20px rgba(0,0,0,.06)}
-            .repo{font-weight:700}
-            .meta{font-size:12px;color:var(--muted);word-break:break-all}
-            .badge{padding:2px 8px;border-radius:999px;color:#fff;font-size:12px}
-            .updated{background:var(--ok)} .skipped{background:var(--skip)} .failed{background:var(--fail)}
-            </style>
-            </head>
-            <body>
-            <div class="header">
-              <div>
-                <h1>Mirror Portal</h1>
-                <div class="meta">Updated: $UPDATED · Skipped: $SKIPPED · Failed: $FAILED</div>
-              </div>
-              <div class="controls">
-              <input id="search" placeholder="Search...">
-                <button id="theme">🌙 Dark</button>
-              </div>
-            </div>
-            <div class="grid" id="grid">
-            $CARD_ITEMS
-            </div>
-            <script>
-            const cards=[...document.querySelectorAll('.card')];
-            document.getElementById('search').oninput=e=>{
-              const f=e.target.value.toLowerCase();
-              cards.forEach(c=>c.style.display=c.innerText.toLowerCase().includes(f)?'':'none');
-            };
-            const root=document.documentElement,btn=document.getElementById('theme');
-            if(localStorage.theme==='dark'){root.setAttribute('data-theme','dark');btn.textContent='☀️ Light'}
-            btn.onclick=()=>{const d=root.getAttribute('data-theme')==='dark';
-              if(d){root.removeAttribute('data-theme');localStorage.theme='light';btn.textContent='🌙 Dark'}
-              else{root.setAttribute('data-theme','dark');localStorage.theme='dark';btn.textContent='☀️ Light'}
-            };
-            const pr={updated:1,skipped:2,failed:3};
-            cards.sort((a,b)=>pr[a.dataset.status]-pr[b.dataset.status]||a.dataset.repo.localeCompare(b.dataset.repo))
-                 .forEach(c=>grid.appendChild(c));
-            </script>
-            </body>
-            </html>
-            EOF
+            TABLE_ROWS="$TABLE_ROWS
+            <tr>
+              <td>$repo</td>
+              <td>$TAG</td>
+              <td>${RELEASE_DATE:0:10}</td>
+              <td>$UPSTREAM_HEAD</td>
+              <td>$PREV_HEAD</td>
+              <td class='$CLASS'>$STATUS</td>
+            </tr>"
 
-      - name: Commit & Publish Pages
+          done < mirror-list.txt
+
+          cat > dashboard.html <<EOF
+          <!DOCTYPE html>
+          <html>
+          <head>
+          <meta charset='UTF-8'>
+          <meta http-equiv='refresh' content='120'>
+          <title>Mirror Dashboard</title>
+          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+          <style>
+          :root {
+            --bg:#f5f5f5; --fg:#111; --card:#fff; --border:#e5e7eb;
+            --ok:#22c55e; --skip:#9ca3af; --fail:#ef4444; --muted:#6b7280;
+          }
+          [data-theme="dark"] {
+            --bg:#0f1115; --fg:#e5e7eb; --card:#151923; --border:#2b2f3a;
+          }
+          *{box-sizing:border-box}
+          body{font-family:Arial;background:var(--bg);color:var(--fg);padding:20px;transition:.2s}
+          h1{margin-bottom:6px}
+          .topbar{display:flex;gap:10px;align-items:center;margin:10px 0 14px}
+          input{padding:8px 10px;width:280px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--fg)}
+          button{padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer}
+          .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+          .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;box-shadow:0 6px 16px rgba(0,0,0,.05)}
+          .repo{font-weight:bold;font-size:16px;word-break:break-all}
+          .meta{color:var(--muted);font-size:12px;margin:6px 0}
+          .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;color:white}
+          .updated{background:var(--ok)}
+          .skipped{background:var(--skip)}
+          .failed{background:var(--fail)}
+          .row{display:flex;justify-content:space-between;gap:8px;font-size:12px;margin:6px 0}
+          hr{border:none;border-top:1px dashed var(--border);margin:8px 0}
+          </style>
+          </head>
+          <body>
+
+          <h1>Mirror Dashboard</h1>
+          <p>Last Run: $(date)</p>
+          <p>Updated: $UPDATED | Skipped: $SKIPPED | Failed: $FAILED</p>
+
+          <div class="topbar">
+            <input id="searchBox" placeholder="Search repository...">
+            <button id="themeToggle">🌙 Dark Mode</button>
+          </div>
+
+          <div id="grid" class="grid">
+          $CARDS
+          </div>
+
+          <canvas id="chart" width="400" height="120" style="margin-top:16px"></canvas>
+
+          <script>
+          new Chart(document.getElementById('chart'), {
+            type: 'bar',
+            data: { labels:['Updated','Skipped','Failed'],
+              datasets:[{label:'Last Run',data:[$UPDATED,$SKIPPED,$FAILED]}]
+            }
+          });
+
+          // 🔎 搜索
+          document.getElementById('searchBox').addEventListener('input', e => {
+            const v = e.target.value.toLowerCase();
+            document.querySelectorAll('.card').forEach(c=>{
+              c.style.display = c.innerText.toLowerCase().includes(v) ? '' : 'none';
+            });
+          });
+
+          // 🌗 暗黑模式
+          const root=document.documentElement,btn=document.getElementById('themeToggle');
+          if(localStorage.getItem('theme')==='dark'){root.setAttribute('data-theme','dark');btn.textContent='☀️ Light Mode'}
+          btn.onclick=()=>{const d=root.getAttribute('data-theme')==='dark';
+            if(d){root.removeAttribute('data-theme');localStorage.setItem('theme','light');btn.textContent='🌙 Dark Mode'}
+            else{root.setAttribute('data-theme','dark');localStorage.setItem('theme','dark');btn.textContent='☀️ Light Mode'}
+          };
+          </script>
+
+          </body>
+          </html>
+          EOF
+
+      - name: Commit Dashboard
         run: |
-          git config user.name mirror-bot
-          git config user.email mirror@bot
-          git add docs releases history .mirror-state || true
-          git commit -m "update mirror portal" || true
-          git push
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Mirror update" || echo "No changes"
+          git push origin infra
