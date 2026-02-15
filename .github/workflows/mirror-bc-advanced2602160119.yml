@@ -85,11 +85,13 @@ jobs:
               diff_html=""
               if [ -n "$last_sha" ]; then
                 cd mirrors/$safe_name
+
                 if git cat-file -e "$last_sha" 2>/dev/null && git cat-file -e "$upstream_sha" 2>/dev/null; then
                   git diff "$last_sha" "$upstream_sha" > diff.patch || true
                 else
                   rm -f diff.patch
                 fi
+
                 cd -
 
                 if [ -s mirrors/$safe_name/diff.patch ]; then
