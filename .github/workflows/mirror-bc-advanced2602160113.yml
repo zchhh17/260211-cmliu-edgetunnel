@@ -97,9 +97,9 @@ jobs:
                     echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Diff - $repo</title></head>"
                     echo "<body style='font-family:monospace;background:#0f1115;color:#e5e7eb;padding:20px'>"
                     echo "<h1>$repo ($branch)</h1><p>$last_sha → $upstream_sha</p><pre>"
-                    sed -e 's/^+/<span style="color:#22c55e">+/' \
-                        -e 's/^-/<span style="color:#ef4444">-/' \
-                        -e 's/^ /<span style="color:#9ca3af"> /' mirrors/$safe_name/diff.patch
+                    sed -e 's/^+/<span style=\"color:#22c55e\">+/' \
+                        -e 's/^-/<span style=\"color:#ef4444\">-/' \
+                        -e 's/^ /<span style=\"color:#9ca3af\"> /' mirrors/$safe_name/diff.patch
                     echo "</pre></body></html>"
                   } > diff-$safe_name.html
                   diff_html="diff-$safe_name.html"
@@ -171,6 +171,7 @@ jobs:
         run: |
           git config user.name "mirror-bot"
           git config user.email "mirror@bot"
-          git add dashboard.html history.html trend.html stats .mirror-state diff-*.html || true
+          git add dashboard.html history.html trend.html stats .mirror-state || true
+          git add diff-*.html 2>/dev/null || true
           git commit -m "update mirror portal" || true
           git push origin infra
