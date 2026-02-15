@@ -1,0 +1,57 @@
+name: Mirror Force Sync (Safe for Infra)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: infra
+
+      - name: Setup
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git
+
+      - name: Force Sync Repos
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          set -Eeuo pipefail
+
+          while read repo; do
+            [ -z "$repo" ] && continue
+
+            safe_name=$(echo "$repo" | tr '/' '-')
+            echo "==== Processing $repo ===="
+
+            rm -rf work
+            git clone https://github.com/$repo.git work
+            cd work
+
+            if git show-ref --quiet refs/heads/beta2.0; then
+              branch="beta2.0"
+            else
+              branch="main"
+            fi
+
+            echo "Using branch: $branch"
+
+            git checkout "$branch"
+
+            git remote add target https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+
+            git fetch target || true
+
+            git push target "$branch":"$branch" --force
+
+            cd ..
+            rm -rf work
+
+          done < mirror-list.txt
