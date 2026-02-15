@@ -52,6 +52,8 @@ jobs:
 
             safe_name=$(echo "$repo" | tr '/' '-')
             state_file=".mirror-state/${safe_name}.sha"
+            diff_html=""
+            branch="unknown"
 
             main_sha=$(git ls-remote https://github.com/$repo.git refs/heads/main | cut -f1 || true)
             beta_sha=$(git ls-remote https://github.com/$repo.git refs/heads/beta2.0 | cut -f1 || true)
@@ -77,7 +79,7 @@ jobs:
               cd mirrors/$safe_name
               git remote add target https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
               retry git push target 'refs/heads/*:refs/heads/*'
-              retry git push target 'refs/tags/*:refs/tags/*'
+              git show-ref --tags --quiet && retry git push target 'refs/tags/*:refs/tags/*' || echo "No tags to push"
               cd -
 
               diff_html=""
@@ -119,7 +121,7 @@ jobs:
               <div>Branch: $branch</div>
               <div>Upstream: ${upstream_sha:-none}</div>
               <div>Status: <span class='$cls'>$status</span></div>
-              $( [ -n "$diff_html" ] && echo "<a href='$diff_html'>View Diff</a>" )
+              $( [ -n "${diff_html:-}" ] && echo "<a href='$diff_html'>View Diff</a>" )
             </div>"
 
             HISTORY_ROWS="$HISTORY_ROWS
