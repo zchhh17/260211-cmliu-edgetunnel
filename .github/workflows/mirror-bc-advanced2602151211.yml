@@ -30,10 +30,8 @@ jobs:
             while true; do
               "$@" && break || {
                 if [[ $n -lt $max ]]; then
-                  echo "Retry $n/$max..."
                   ((n++)); sleep $delay
                 else
-                  echo "Command failed after $max attempts."
                   return 1
                 fi
               }
@@ -67,36 +65,28 @@ jobs:
               retry git clone --bare https://github.com/$repo.git mirrors/$safe_name || { FAILED=$((FAILED+1)); continue; }
 
               cd mirrors/$safe_name
+              git fetch --all --tags || true
               git remote add target https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
-              retry git push target 'refs/heads/*:refs/heads/*'
-              retry git push target 'refs/tags/*:refs/tags/*'
-              cd -
+              git push target 'refs/heads/*:refs/heads/*' || true
+              git push target 'refs/tags/*:refs/tags/*' || true
 
-              if [ -n "$last_sha" ]; then
-              cd mirrors/$safe_name
-
-              if git cat-file -e "$last_sha" 2>/dev/null && git cat-file -e "$upstream_sha" 2>/dev/null; then
-                git diff "$last_sha" "$upstream_sha" > diff.patch || true
-              else
-                echo "⚠️ One of the SHAs not found locally, skip diff"
-                rm -f diff.patch
+              if [ -n "$last_sha" ] && git cat-file -e "$last_sha" 2>/dev/null && git cat-file -e "$upstream_sha" 2>/dev/null; then
+                git diff "$last_sha" "$upstream_sha" > ../../diff.patch || true
               fi
-
               cd -
 
-              if [ -f mirrors/$safe_name/diff.patch ]; then
-              {
-                  echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Diff - $repo</title></head><body style='font-family:monospace;background:#0f1115;color:#e5e7eb;padding:20px'>"
+              if [ -f diff.patch ]; then
+                {
+                  echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Diff - $repo</title></head>"
+                  echo "<body style='font-family:monospace;background:#0f1115;color:#e5e7eb;padding:20px'>"
                   echo "<h1>Diff: $repo</h1><p>$last_sha → $upstream_sha</p><pre>"
                   sed -e 's/^+/<span style="color:#22c55e">+/' \
                       -e 's/^-/<span style="color:#ef4444">-/' \
-                      -e 's/^ /<span style="color:#9ca3af"> /' mirrors/$safe_name/diff.patch
+                      -e 's/^ /<span style="color:#9ca3af"> /' diff.patch
                   echo "</pre></body></html>"
                 } > diff-$safe_name.html
-              else
-                echo "⚠️ diff.patch not generated, skip diff html"
+                rm -f diff.patch
               fi
-            fi
 
               echo "$upstream_sha" > "$state_file"
               UPDATED=$((UPDATED+1))
@@ -120,45 +110,31 @@ jobs:
 
           done < mirror-list.txt
 
-          if [ ! -f stats/history.csv ]; then
-            echo "time,updated,skipped,failed" > stats/history.csv
-          fi
+          [ ! -f stats/history.csv ] && echo "time,updated,skipped,failed" > stats/history.csv
           echo "$(date -u +%Y-%m-%dT%H:%M:%SZ),$UPDATED,$SKIPPED,$FAILED" >> stats/history.csv
 
-          cat > dashboard.html <<'EOF'
+          cat > dashboard.html <<EOF
           <!DOCTYPE html>
           <html><head><meta charset="UTF-8"><title>Mirror Dashboard</title></head>
           <body>
           <h1>Mirror Dashboard</h1>
-          <p>Updated: '"$UPDATED"' | Skipped: '"$SKIPPED"' | Failed: '"$FAILED"'</p>
-          <div>'"$CARDS"'</div>
+          <p>Updated: $UPDATED | Skipped: $SKIPPED | Failed: $FAILED</p>
+          <div>$CARDS</div>
           </body></html>
           EOF
 
-          cat > history.html <<'EOF'
+          cat > history.html <<EOF
           <!DOCTYPE html>
           <html><head><meta charset="UTF-8"><title>Mirror History</title></head>
           <body><table border="1"><tr><th>Repo</th><th>SHA</th><th>Status</th></tr>
-          '"$HISTORY_ROWS"'
+          $HISTORY_ROWS
           </table></body></html>
           EOF
 
-          cat > trend.html <<'EOF'
+          cat > trend.html <<EOF
           <!DOCTYPE html>
-          <html><head><meta charset="UTF-8"><title>Trend</title>
-          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script></head>
-          <body><canvas id="c"></canvas>
-          <script>
-          fetch('stats/history.csv').then(r=>r.text()).then(t=>{
-            const L=t.trim().split('\n').slice(1),lab=[],u=[],s=[],f=[];
-            L.forEach(x=>{const a=x.split(',');lab.push(a[0]);u.push(+a[1]);s.push(+a[2]);f.push(+a[3]);});
-            new Chart(document.getElementById('c'),{type:'line',data:{labels:lab,datasets:[
-              {label:'Updated',data:u,borderColor:'green'},
-              {label:'Skipped',data:s,borderColor:'gray'},
-              {label:'Failed',data:f,borderColor:'red'}
-            ]}});
-          });
-          </script></body></html>
+          <html><head><meta charset="UTF-8"><title>Trend</title></head>
+          <body><pre>Trend page placeholder</pre></body></html>
           EOF
 
       - name: Commit Pages
