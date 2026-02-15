@@ -72,26 +72,23 @@ jobs:
             status="Skipped (No change)"
             cls="skipped"
 
-            if [ -n "$upstream_sha" ] && [ "$upstream_sha" != "$last_sha" ]; then
+            if [ -n "${upstream_sha:-}" ] && [ "${upstream_sha:-}" != "${last_sha:-}" ]; then
               rm -rf mirrors/$safe_name
               retry git clone --bare https://github.com/$repo.git mirrors/$safe_name || { FAILED=$((FAILED+1)); continue; }
 
               cd mirrors/$safe_name
               git remote add target https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
-              retry git push target 'refs/heads/*:refs/heads/*'
+              retry git push target 'refs/heads/*:refs/heads/*' || true
               git show-ref --tags --quiet && retry git push target 'refs/tags/*:refs/tags/*' || echo "No tags to push"
               cd -
 
-              diff_html=""
-              if [ -n "$last_sha" ]; then
+              if [ -n "${last_sha:-}" ]; then
                 cd mirrors/$safe_name
-
                 if git cat-file -e "$last_sha" 2>/dev/null && git cat-file -e "$upstream_sha" 2>/dev/null; then
                   git diff "$last_sha" "$upstream_sha" > diff.patch || true
                 else
                   rm -f diff.patch
                 fi
-
                 cd -
 
                 if [ -s mirrors/$safe_name/diff.patch ]; then
@@ -99,9 +96,9 @@ jobs:
                     echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Diff - $repo</title></head>"
                     echo "<body style='font-family:monospace;background:#0f1115;color:#e5e7eb;padding:20px'>"
                     echo "<h1>$repo ($branch)</h1><p>$last_sha → $upstream_sha</p><pre>"
-                    sed -e 's/^+/<span style=\"color:#22c55e\">+/' \
-                        -e 's/^-/<span style=\"color:#ef4444\">-/' \
-                        -e 's/^ /<span style=\"color:#9ca3af\"> /' mirrors/$safe_name/diff.patch
+                    sed -e 's/^+/<span style="color:#22c55e">+/' \
+                        -e 's/^-/<span style="color:#ef4444">-/' \
+                        -e 's/^ /<span style="color:#9ca3af"> /' mirrors/$safe_name/diff.patch || true
                     echo "</pre></body></html>"
                   } > diff-$safe_name.html
                   diff_html="diff-$safe_name.html"
@@ -114,7 +111,11 @@ jobs:
               cls="updated"
             else
               SKIPPED=$((SKIPPED+1))
-              diff_html=""
+            fi
+
+            link_html=""
+            if [ -n "${diff_html:-}" ]; then
+              link_html="<a href='$diff_html'>View Diff</a>"
             fi
 
             CARDS="$CARDS
@@ -123,11 +124,11 @@ jobs:
               <div>Branch: $branch</div>
               <div>Upstream: ${upstream_sha:-none}</div>
               <div>Status: <span class='$cls'>$status</span></div>
-              $( [ -n "${diff_html:-}" ] && echo "<a href='$diff_html'>View Diff</a>" )
+              $link_html
             </div>"
 
             HISTORY_ROWS="$HISTORY_ROWS
-            <tr><td>$repo</td><td>$branch</td><td>$upstream_sha</td><td>$status</td></tr>"
+            <tr><td>$repo</td><td>$branch</td><td>${upstream_sha:-none}</td><td>$status</td></tr>"
 
           done < mirror-list.txt
 
@@ -173,7 +174,6 @@ jobs:
         run: |
           git config user.name "mirror-bot"
           git config user.email "mirror@bot"
-          git add dashboard.html history.html trend.html stats .mirror-state || true
-          git add diff-*.html 2>/dev/null || true
+          git add dashboard.html history.html trend.html stats .mirror-state diff-*.html || true
           git commit -m "update mirror portal" || true
-          git push origin infra
+          git push origin infra || true
