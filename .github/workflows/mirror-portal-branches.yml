@@ -1,0 +1,190 @@
+name: Mirror Portal (Branches + Diff + Trend + Release)
+
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: "0 */6 * * *"
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: infra
+
+      - name: Setup
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git jq
+
+      - name: Mirror + Portal
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          set -Eeuo pipefail
+
+          retry() {
+            local n=1 max=3 delay=5
+            while true; do
+              "$@" && break || {
+                if [[ $n -lt $max ]]; then
+                  echo "Retry $n/$max..."
+                  ((n++)); sleep $delay
+                else
+                  echo "Command failed after $max attempts."
+                  return 1
+                fi
+              }
+            done
+          }
+
+          mkdir -p mirrors .mirror-state stats pages/diff
+
+          UPDATED=0
+          SKIPPED=0
+          FAILED=0
+          CARDS=""
+          HISTORY_ROWS=""
+
+          while read repo; do
+            [ -z "$repo" ] && continue
+
+            safe_name=$(echo "$repo" | tr '/' '-')
+
+            state_main=".mirror-state/${safe_name}.main.sha"
+            state_beta=".mirror-state/${safe_name}.beta.sha"
+
+            main_sha=$(git ls-remote https://github.com/$repo.git refs/heads/main | cut -f1 || true)
+            beta_sha=$(git ls-remote https://github.com/$repo.git refs/heads/beta2.0 | cut -f1 || true)
+
+            rm -rf mirrors/$safe_name
+            retry git clone --bare https://github.com/$repo.git mirrors/$safe_name || { FAILED=$((FAILED+1)); continue; }
+
+            cd mirrors/$safe_name
+            git remote add target https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+
+            git push target refs/heads/main:refs/heads/main || true
+            git push target refs/heads/beta2.0:refs/heads/beta2.0 || true
+            git show-ref --tags --quiet && git push target 'refs/tags/*:refs/tags/*' || true
+            cd -
+
+            status_main="Skipped"
+            status_beta="Skipped"
+
+            if [ -n "$main_sha" ]; then
+              last_main=""
+              [ -f "$state_main" ] && last_main=$(cat "$state_main")
+              if [ "$main_sha" != "$last_main" ]; then
+                status_main="Updated"
+                UPDATED=$((UPDATED+1))
+                echo "$main_sha" > "$state_main"
+              fi
+            fi
+
+            if [ -n "$beta_sha" ]; then
+              last_beta=""
+              [ -f "$state_beta" ] && last_beta=$(cat "$state_beta")
+              if [ "$beta_sha" != "$last_beta" ]; then
+                status_beta="Updated"
+                UPDATED=$((UPDATED+1))
+                echo "$beta_sha" > "$state_beta"
+              fi
+            fi
+
+            make_diff() {
+              local br=$1
+              local old=$2
+              local new=$3
+              local out="pages/diff/${safe_name}-${br}.html"
+
+              if [ -n "$old" ] && [ -n "$new" ]; then
+                cd mirrors/$safe_name
+                if git cat-file -e "$old" 2>/dev/null && git cat-file -e "$new" 2>/dev/null; then
+                  git diff "$old" "$new" > diff.patch || true
+                else
+                  rm -f diff.patch
+                fi
+                cd -
+
+                if [ -s mirrors/$safe_name/diff.patch ]; then
+                  {
+                    echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Diff $repo ($br)</title></head>"
+                    echo "<body style='font-family:monospace;background:#0f1115;color:#e5e7eb;padding:20px'>"
+                    echo "<h1>$repo - $br</h1><pre>"
+                    sed -e 's/^+/<span style="color:#22c55e">+/' \
+                        -e 's/^-/<span style="color:#ef4444">-/' \
+                        -e 's/^ /<span style="color:#9ca3af"> /' mirrors/$safe_name/diff.patch
+                    echo "</pre></body></html>"
+                  } > "$out"
+                fi
+              fi
+            }
+
+            make_diff main "$last_main" "$main_sha"
+            make_diff beta2.0 "$last_beta" "$beta_sha"
+
+            CARDS="$CARDS
+            <div class='card'>
+              <b>$repo</b><br/>
+              main: $status_main<br/>
+              beta2.0: $status_beta<br/>
+              <a href='pages/diff/${safe_name}-main.html'>Diff main</a> |
+              <a href='pages/diff/${safe_name}-beta2.0.html'>Diff beta2.0</a>
+            </div>"
+
+            HISTORY_ROWS="$HISTORY_ROWS
+            <tr><td>$repo</td><td>main</td><td>$status_main</td></tr>
+            <tr><td>$repo</td><td>beta2.0</td><td>$status_beta</td></tr>"
+
+          done < mirror-list.txt
+
+          if [ ! -f stats/history.csv ]; then
+            echo "time,updated,skipped,failed" > stats/history.csv
+          fi
+          echo "$(date -u +%Y-%m-%dT%H:%M:%SZ),$UPDATED,$SKIPPED,$FAILED" >> stats/history.csv
+
+          cat > dashboard.html <<EOF
+          <!DOCTYPE html>
+          <html><head><meta charset="UTF-8">
+          <title>Mirror Dashboard</title>
+          </head><body>
+          <h1>Mirror Dashboard</h1>
+          <p>Updated: $UPDATED | Skipped: $SKIPPED | Failed: $FAILED</p>
+          $CARDS
+          <p><a href="trend.html">View Trend</a></p>
+          </body></html>
+          EOF
+
+          cat > trend.html <<EOF
+          <!DOCTYPE html>
+          <html><head><meta charset="UTF-8">
+          <title>Trend</title>
+          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+          </head>
+          <body>
+          <canvas id="c"></canvas>
+          <script>
+          fetch('stats/history.csv').then(r=>r.text()).then(t=>{
+            const L=t.trim().split('\\n').slice(1),lab=[],u=[],s=[],f=[];
+            L.forEach(x=>{const a=x.split(',');lab.push(a[0]);u.push(+a[1]);s.push(+a[2]);f.push(+a[3]);});
+            new Chart(document.getElementById('c'),{type:'line',data:{labels:lab,datasets:[
+              {label:'Updated',data:u,borderColor:'green'},
+              {label:'Skipped',data:s,borderColor:'gray'},
+              {label:'Failed',data:f,borderColor:'red'}
+            ]}});
+          });
+          </script>
+          </body></html>
+          EOF
+
+      - name: Commit Pages
+        run: |
+          git config user.name "mirror-bot"
+          git config user.email "mirror@bot"
+          git add dashboard.html trend.html pages stats .mirror-state || true
+          git commit -m "update mirror portal (branches + diff + trend)" || true
+          git push origin infra
