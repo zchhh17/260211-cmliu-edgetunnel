@@ -42,7 +42,7 @@ jobs:
             done
           }
 
-          mkdir -p mirrors .mirror-state stats pages/diff
+          mkdir -p mirrors .mirror-state stats
 
           UPDATED=0
           SKIPPED=0
@@ -66,7 +66,6 @@ jobs:
 
             cd mirrors/$safe_name
             git remote add target https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
-
             git push target refs/heads/main:refs/heads/main || true
             git push target refs/heads/beta2.0:refs/heads/beta2.0 || true
             git show-ref --tags --quiet && git push target 'refs/tags/*:refs/tags/*' || true
@@ -75,31 +74,16 @@ jobs:
             status_main="Skipped"
             status_beta="Skipped"
 
-            if [ -n "$main_sha" ]; then
-              last_main=""
-              [ -f "$state_main" ] && last_main=$(cat "$state_main")
-              if [ "$main_sha" != "$last_main" ]; then
-                status_main="Updated"
-                UPDATED=$((UPDATED+1))
-                echo "$main_sha" > "$state_main"
-              fi
-            fi
-
-            if [ -n "$beta_sha" ]; then
-              last_beta=""
-              [ -f "$state_beta" ] && last_beta=$(cat "$state_beta")
-              if [ "$beta_sha" != "$last_beta" ]; then
-                status_beta="Updated"
-                UPDATED=$((UPDATED+1))
-                echo "$beta_sha" > "$state_beta"
-              fi
-            fi
+            last_main=""
+            last_beta=""
+            [ -f "$state_main" ] && last_main=$(cat "$state_main")
+            [ -f "$state_beta" ] && last_beta=$(cat "$state_beta")
 
             make_diff() {
               local br=$1
               local old=$2
               local new=$3
-              local out="pages/diff/${safe_name}-${br}.html"
+              local out="diff-${safe_name}-${br}.html"
 
               if [ -n "$old" ] && [ -n "$new" ]; then
                 cd mirrors/$safe_name
@@ -115,30 +99,35 @@ jobs:
                     echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Diff $repo ($br)</title></head>"
                     echo "<body style='font-family:monospace;background:#0f1115;color:#e5e7eb;padding:20px'>"
                     echo "<h1>$repo - $br</h1><pre>"
-                    sed -e 's/^+/<span style="color:#22c55e">+/' \
-                        -e 's/^-/<span style="color:#ef4444">-/' \
-                        -e 's/^ /<span style="color:#9ca3af"> /' mirrors/$safe_name/diff.patch
+                    sed -e 's/^+/<span style=\"color:#22c55e\">+/' \
+                        -e 's/^-/<span style=\"color:#ef4444\">-/' \
+                        -e 's/^ /<span style=\"color:#9ca3af\"> /' mirrors/$safe_name/diff.patch
                     echo "</pre></body></html>"
                   } > "$out"
                 fi
               fi
             }
 
-            make_diff main "$last_main" "$main_sha"
-            make_diff beta2.0 "$last_beta" "$beta_sha"
+            if [ -n "$main_sha" ] && [ "$main_sha" != "$last_main" ]; then
+              status_main="Updated"
+              UPDATED=$((UPDATED+1))
+              make_diff main "$last_main" "$main_sha"
+              echo "$main_sha" > "$state_main"
+            fi
+
+            if [ -n "$beta_sha" ] && [ "$beta_sha" != "$last_beta" ]; then
+              status_beta="Updated"
+              UPDATED=$((UPDATED+1))
+              make_diff beta2.0 "$last_beta" "$beta_sha"
+              echo "$beta_sha" > "$state_beta"
+            fi
 
             CARDS="$CARDS
-            <div class='card'>
+            <div style='border:1px solid #ddd;padding:10px;margin:10px'>
               <b>$repo</b><br/>
-              main: $status_main<br/>
-              beta2.0: $status_beta<br/>
-              <a href='pages/diff/${safe_name}-main.html'>Diff main</a> |
-              <a href='pages/diff/${safe_name}-beta2.0.html'>Diff beta2.0</a>
+              main: $status_main <a href='diff-${safe_name}-main.html'>Diff</a><br/>
+              beta2.0: $status_beta <a href='diff-${safe_name}-beta2.0.html'>Diff</a>
             </div>"
-
-            HISTORY_ROWS="$HISTORY_ROWS
-            <tr><td>$repo</td><td>main</td><td>$status_main</td></tr>
-            <tr><td>$repo</td><td>beta2.0</td><td>$status_beta</td></tr>"
 
           done < mirror-list.txt
 
@@ -148,10 +137,8 @@ jobs:
           echo "$(date -u +%Y-%m-%dT%H:%M:%SZ),$UPDATED,$SKIPPED,$FAILED" >> stats/history.csv
 
           cat > dashboard.html <<EOF
-          <!DOCTYPE html>
-          <html><head><meta charset="UTF-8">
-          <title>Mirror Dashboard</title>
-          </head><body>
+          <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Mirror Dashboard</title></head>
+          <body>
           <h1>Mirror Dashboard</h1>
           <p>Updated: $UPDATED | Skipped: $SKIPPED | Failed: $FAILED</p>
           $CARDS
@@ -160,13 +147,9 @@ jobs:
           EOF
 
           cat > trend.html <<EOF
-          <!DOCTYPE html>
-          <html><head><meta charset="UTF-8">
-          <title>Trend</title>
-          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-          </head>
-          <body>
-          <canvas id="c"></canvas>
+          <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Trend</title>
+          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script></head>
+          <body><canvas id="c"></canvas>
           <script>
           fetch('stats/history.csv').then(r=>r.text()).then(t=>{
             const L=t.trim().split('\\n').slice(1),lab=[],u=[],s=[],f=[];
@@ -185,6 +168,6 @@ jobs:
         run: |
           git config user.name "mirror-bot"
           git config user.email "mirror@bot"
-          git add dashboard.html trend.html pages stats .mirror-state || true
-          git commit -m "update mirror portal (branches + diff + trend)" || true
+          git add dashboard.html trend.html diff-*.html stats .mirror-state || true
+          git commit -m "update mirror portal (fix pages path)" || true
           git push origin infra
