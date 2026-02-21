@@ -1,48 +1,19 @@
 <!DOCTYPE html>
-<html>
-<head>
-<meta charset='UTF-8'>
-<title>Mirror Trends</title>
+<html><head><meta charset="UTF-8">
+<title>Trend</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-body { font-family: Arial; background:#f5f5f5; padding:20px;}
-canvas { background:white; border-radius:12px; padding:12px;}
-</style>
 </head>
 <body>
-
-<h1>Mirror Update Trends</h1>
-<p>Auto-generated</p>
-
-<canvas id="trendChart" width="400" height="160"></canvas>
-
+<canvas id="c"></canvas>
 <script>
-fetch('stats/history.csv')
-  .then(r => r.text())
-  .then(t => {
-    const lines = t.trim().split('\n').slice(1);
-    const labels = [], updated = [], skipped = [], failed = [];
-    lines.forEach(l => {
-      const [time,u,s,f] = l.split(',');
-      labels.push(time.replace('T',' ').replace('Z',''));
-      updated.push(Number(u));
-      skipped.push(Number(s));
-      failed.push(Number(f));
-    });
-
-    new Chart(document.getElementById('trendChart'), {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [
-          { label: 'Updated', data: updated, borderColor: 'green', tension: 0.3 },
-          { label: 'Skipped', data: skipped, borderColor: 'gray', tension: 0.3 },
-          { label: 'Failed', data: failed, borderColor: 'red', tension: 0.3 }
-        ]
-      }
-    });
-  });
+fetch('stats/history.csv').then(r=>r.text()).then(t=>{
+  const L=t.trim().split('\n').slice(1),lab=[],u=[],s=[],f=[];
+  L.forEach(x=>{const a=x.split(',');lab.push(a[0]);u.push(+a[1]);s.push(+a[2]);f.push(+a[3]);});
+  new Chart(document.getElementById('c'),{type:'line',data:{labels:lab,datasets:[
+    {label:'Updated',data:u,borderColor:'green'},
+    {label:'Skipped',data:s,borderColor:'gray'},
+    {label:'Failed',data:f,borderColor:'red'}
+  ]}});
+});
 </script>
-
-</body>
-</html>
+</body></html>
