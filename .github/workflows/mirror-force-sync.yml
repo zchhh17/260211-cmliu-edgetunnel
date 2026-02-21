@@ -1,4 +1,4 @@
-name: Mirror Force Sync (All Branches Safe)
+name: Mirror Force Sync (All Branches - Safe)
 
 on:
   workflow_dispatch:
@@ -19,7 +19,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y git
 
-      - name: Force Sync Repos (All Branches)
+      - name: Force Sync All Branches
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
@@ -30,16 +30,25 @@ jobs:
             echo "==== Processing $repo ===="
 
             rm -rf work
-            git clone https://github.com/$repo.git work
+            git clone --mirror https://github.com/$repo.git work
             cd work
 
             git remote add target https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
-            git fetch --all --tags
 
-            # 强制同步所有分支（不影响 infra）
-            git push target 'refs/heads/*:refs/heads/*' --force
+            echo "📦 Remote branches:"
+            git for-each-ref --format='%(refname:short)' refs/heads
 
-            # 同步 tags（如果有）
+            for br in $(git for-each-ref --format='%(refname:short)' refs/heads); do
+              if [ "$br" = "infra" ]; then
+                echo "⏭ Skip infra"
+                continue
+              fi
+
+              echo "🔥 Force pushing branch: $br"
+              git push target "refs/heads/$br:refs/heads/$br" --force
+            done
+
+            echo "🏷 Sync tags"
             git push target --tags --force || echo "No tags to push"
 
             cd ..
