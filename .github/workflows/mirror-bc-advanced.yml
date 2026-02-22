@@ -1,127 +1,178 @@
-name: Mirror Repos (B+C Advanced)
+name: Mirror BC Advanced (Portal + History + Trend + Diff) [STABLE]
 
 on:
   workflow_dispatch:
-  #schedule:
-    #- cron: "41 */6 * * *"
-
-permissions:
-  contents: write
 
 jobs:
   mirror:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
-      - name: Checkout infra
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          ref: infra
 
-      - name: Generate GitHub App token
-        id: app-token
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.GH_APP_ID }}
-          private-key: ${{ secrets.GH_APP_KEY }}
+      - name: Setup
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git jq
 
-      - name: Mirror repositories
+      - name: Run Mirror + Portal + Diff
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           set -Eeuo pipefail
-
-          REPOS=(
-            "cmliu/edgetunnel"
-            "badafans/socksforward"
-          )
 
           retry() {
-            local n=0
-            until [ "$n" -ge 5 ]; do
-              "$@" && break
-              n=$((n+1))
-              echo "Retry $n/5 failed, wait 10s..."
-              sleep 10
+            local n=1 max=3 delay=5
+            while true; do
+              "$@" && break || {
+                if [[ $n -lt $max ]]; then
+                  echo "Retry $n/$max..."
+                  ((n++)); sleep $delay
+                else
+                  echo "Command failed after $max attempts."
+                  return 1
+                fi
+              }
             done
-            [ "$n" -lt 5 ]
           }
 
-          mkdir -p state releases
+          mkdir -p mirrors .mirror-state stats
+          UPDATED=0
+          SKIPPED=0
+          FAILED=0
+          CARDS=""
+          HISTORY_ROWS=""
 
-          for repo in "${REPOS[@]}"; do
-            echo "=============================="
-            echo "▶ $repo"
-            echo "=============================="
+          while read repo; do
+            [ -z "$repo" ] && continue
 
-            name=$(echo "$repo" | tr '/' '_')
-            state_file="state/$name.commit"
+            safe_name=$(echo "$repo" | tr '/' '-')
+            state_main=".mirror-state/${safe_name}.main.sha"
+            state_beta=".mirror-state/${safe_name}.beta2.0.sha"
 
-            UPSTREAM="https://github.com/$repo.git"
-            TARGET="https://x-access-token:$GH_TOKEN@github.com/${{ github.repository }}.git"
+            main_sha=$(git ls-remote https://github.com/$repo.git refs/heads/main | cut -f1 || true)
+            beta_sha=$(git ls-remote https://github.com/$repo.git refs/heads/beta2.0 | cut -f1 || true)
 
-            rm -rf mirror.git
-            retry git clone --mirror "$UPSTREAM" mirror.git
-            cd mirror.git
-
-            git for-each-ref --format='%(refname)' refs/pull | xargs -r git update-ref -d
-
-            new_commit=$(git rev-parse HEAD)
-
-            old_commit=""
-            [ -f "../$state_file" ] && old_commit=$(cat "../$state_file")
-
-            retry git push "$TARGET" --all --force
-            retry git push "$TARGET" --tags --force
-
-            echo "$new_commit" > "../$state_file"
-            cd ..
-
-            ##################################
-            # Release + Assets（每仓库独立）
-            ##################################
-            mkdir -p "releases/$name"
-            cd "releases/$name"
-
-            gh release list -R "$repo" --limit 10 > releases.txt || true
-
-            while read -r line; do
-              tag=$(echo "$line" | awk '{print $1}')
-              gh release download "$tag" -R "$repo" --clobber || true
-            done < releases.txt
-
-            cd ../..
-
-            ##################################
-            # Summary（commit diff）
-            ##################################
-            {
-              echo "### 📦 $repo"
-              if [ -n "$old_commit" ]; then
-                echo "- Commits:"
-                echo "  - https://github.com/$repo/compare/$old_commit...$new_commit"
+            for branch in main beta2.0; do
+              if [ "$branch" = "main" ]; then
+                upstream_sha="$main_sha"
+                state_file="$state_main"
               else
-                echo "- First mirror (no diff)"
+                upstream_sha="$beta_sha"
+                state_file="$state_beta"
               fi
-              echo ""
-            } >> "$GITHUB_STEP_SUMMARY"
-          done
 
-      - name: Publish per-repo releases
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+              [ -z "$upstream_sha" ] && continue
+
+              last_sha=""
+              [ -f "$state_file" ] && last_sha=$(cat "$state_file")
+
+              status="Skipped (No change)"
+              cls="skipped"
+              diff_file="diff-$safe_name-$branch.html"
+
+              if [ "$upstream_sha" != "$last_sha" ]; then
+                rm -rf mirrors/$safe_name
+                retry git clone --bare https://github.com/$repo.git mirrors/$safe_name || { FAILED=$((FAILED+1)); continue; }
+
+                cd mirrors/$safe_name
+                git remote remove target 2>/dev/null || true
+                git remote add target https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+                retry git push target "refs/heads/$branch:refs/heads/$branch" || true
+                git show-ref --tags --quiet && retry git push target 'refs/tags/*:refs/tags/*' || echo "No tags"
+                cd -
+
+                if [ -n "$last_sha" ]; then
+                  cd mirrors/$safe_name
+                  if git cat-file -e "$last_sha" 2>/dev/null && git cat-file -e "$upstream_sha" 2>/dev/null; then
+                    git diff "$last_sha" "$upstream_sha" > diff.patch || true
+                  else
+                    rm -f diff.patch
+                  fi
+                  cd -
+
+                  if [ -s mirrors/$safe_name/diff.patch ]; then
+                    {
+                      echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Diff - $repo ($branch)</title></head>"
+                      echo "<body style='font-family:monospace;background:#0f1115;color:#e5e7eb;padding:20px'>"
+                      echo "<h1>$repo ($branch)</h1><p>$last_sha → $upstream_sha</p><pre>"
+                      sed -e 's/^+/<span style="color:#22c55e">+/' \
+                          -e 's/^-/<span style="color:#ef4444">-/' \
+                          -e 's/^ /<span style="color:#9ca3af"> /' mirrors/$safe_name/diff.patch
+                      echo "</pre></body></html>"
+                    } > "$diff_file"
+                  fi
+                fi
+
+                echo "$upstream_sha" > "$state_file"
+                UPDATED=$((UPDATED+1))
+                status="Updated ($branch)"
+                cls="updated"
+              else
+                SKIPPED=$((SKIPPED+1))
+              fi
+
+              CARDS="$CARDS
+              <div class='card'>
+                <div><b>$repo</b> [$branch]</div>
+                <div>Upstream: $upstream_sha</div>
+                <div>Status: <span class='$cls'>$status</span></div>
+                <a href='$diff_file'>View Diff</a>
+              </div>"
+
+              HISTORY_ROWS="$HISTORY_ROWS
+              <tr><td>$repo</td><td>$branch</td><td>$upstream_sha</td><td>$status</td></tr>"
+
+            done
+
+          done < mirror-list.txt
+
+          if [ ! -f stats/history.csv ]; then
+            echo "time,updated,skipped,failed" > stats/history.csv
+          fi
+          echo "$(date -u +%Y-%m-%dT%H:%M:%SZ),$UPDATED,$SKIPPED,$FAILED" >> stats/history.csv
+
+          cat > dashboard.html <<'EOF'
+          <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Mirror Dashboard</title></head>
+          <body>
+          <h1>Mirror Dashboard</h1>
+          <div>'"$CARDS"'</div>
+          </body></html>
+          EOF
+
+          cat > history.html <<'EOF'
+          <!DOCTYPE html><html><head><meta charset="UTF-8"><title>History</title></head>
+          <body><table border="1">
+          <tr><th>Repo</th><th>Branch</th><th>SHA</th><th>Status</th></tr>
+          '"$HISTORY_ROWS"'
+          </table></body></html>
+          EOF
+
+          cat > trend.html <<'EOF'
+          <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Trend</title>
+          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script></head>
+          <body><canvas id="c"></canvas>
+          <script>
+          fetch('stats/history.csv').then(r=>r.text()).then(t=>{
+            const L=t.trim().split('\n').slice(1),lab=[],u=[],s=[],f=[];
+            L.forEach(x=>{const a=x.split(',');lab.push(a[0]);u.push(+a[1]);s.push(+a[2]);f.push(+a[3]);});
+            new Chart(document.getElementById('c'),{type:'line',data:{labels:lab,datasets:[
+              {label:'Updated',data:u,borderColor:'green'},
+              {label:'Skipped',data:s,borderColor:'gray'},
+              {label:'Failed',data:f,borderColor:'red'}
+            ]}});
+          });
+          </script></body></html>
+          EOF
+
+      - name: Commit Pages
         run: |
-          set -Eeuo pipefail
-
-          for d in releases/*; do
-            repo=$(basename "$d")
-            ts=$(date -u +"%Y%m%d-%H%M%S")
-            tarball="$repo-assets-$ts.tar.gz"
-
-            tar -czf "$tarball" "$d"
-
-            gh release create "$repo-assets-$ts" \
-              "$tarball" \
-              --title "$repo assets $ts" \
-              --notes "Auto mirrored release assets for $repo"
-          done
+          git config user.name "mirror-bot"
+          git config user.email "mirror@bot"
+          git add dashboard.html history.html trend.html stats .mirror-state diff-*.html || true
+          git commit -m "update mirror portal" || true
+          git push origin infra
