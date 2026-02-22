@@ -1,4 +1,4 @@
-name: Mirror BC Advanced (Portal + History + Trend + Diff) [STABLE]
+name: Mirror BC Advanced (Portal + History + Trend + Diff)
 
 on:
   workflow_dispatch:
@@ -19,7 +19,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y git jq
 
-      - name: Run Mirror + Portal + Diff
+      - name: Run Mirror + Portal + Diff (Stable)
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
@@ -40,7 +40,7 @@ jobs:
             done
           }
 
-          mkdir -p mirrors .mirror-state stats
+          mkdir -p mirrors work .mirror-state stats
           UPDATED=0
           SKIPPED=0
           FAILED=0
@@ -51,21 +51,12 @@ jobs:
             [ -z "$repo" ] && continue
 
             safe_name=$(echo "$repo" | tr '/' '-')
-            state_main=".mirror-state/${safe_name}.main.sha"
-            state_beta=".mirror-state/${safe_name}.beta2.0.sha"
-
-            main_sha=$(git ls-remote https://github.com/$repo.git refs/heads/main | cut -f1 || true)
-            beta_sha=$(git ls-remote https://github.com/$repo.git refs/heads/beta2.0 | cut -f1 || true)
 
             for branch in main beta2.0; do
-              if [ "$branch" = "main" ]; then
-                upstream_sha="$main_sha"
-                state_file="$state_main"
-              else
-                upstream_sha="$beta_sha"
-                state_file="$state_beta"
-              fi
+              state_file=".mirror-state/${safe_name}.${branch}.sha"
+              diff_file="diff-${safe_name}-${branch}.html"
 
+              upstream_sha=$(git ls-remote https://github.com/$repo.git refs/heads/$branch | cut -f1 || true)
               [ -z "$upstream_sha" ] && continue
 
               last_sha=""
@@ -73,7 +64,30 @@ jobs:
 
               status="Skipped (No change)"
               cls="skipped"
-              diff_file="diff-$safe_name-$branch.html"
+
+              rm -rf work/$safe_name
+              retry git clone https://github.com/$repo.git work/$safe_name || { FAILED=$((FAILED+1)); continue; }
+
+              cd work/$safe_name
+              git fetch --all --tags
+
+              if [ -n "$last_sha" ] && [ "$upstream_sha" != "$last_sha" ]; then
+                git diff "$last_sha" "$upstream_sha" > diff.patch || true
+              else
+                echo "First sync or no previous SHA" > diff.patch
+              fi
+              cd -
+
+              {
+                echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Diff - $repo ($branch)</title></head>"
+                echo "<body style='font-family:monospace;background:#0f1115;color:#e5e7eb;padding:20px'>"
+                echo "<h1>$repo ($branch)</h1>"
+                echo "<p>${last_sha:-first sync} → $upstream_sha</p><pre>"
+                sed -e 's/^+/<span style="color:#22c55e">+/' \
+                    -e 's/^-/<span style="color:#ef4444">-/' \
+                    -e 's/^ /<span style="color:#9ca3af"> /' work/$safe_name/diff.patch
+                echo "</pre></body></html>"
+              } > "$diff_file"
 
               if [ "$upstream_sha" != "$last_sha" ]; then
                 rm -rf mirrors/$safe_name
@@ -82,31 +96,9 @@ jobs:
                 cd mirrors/$safe_name
                 git remote remove target 2>/dev/null || true
                 git remote add target https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
-                retry git push target "refs/heads/$branch:refs/heads/$branch" || true
+                retry git push target "refs/heads/$branch:refs/heads/$branch"
                 git show-ref --tags --quiet && retry git push target 'refs/tags/*:refs/tags/*' || echo "No tags"
                 cd -
-
-                if [ -n "$last_sha" ]; then
-                  cd mirrors/$safe_name
-                  if git cat-file -e "$last_sha" 2>/dev/null && git cat-file -e "$upstream_sha" 2>/dev/null; then
-                    git diff "$last_sha" "$upstream_sha" > diff.patch || true
-                  else
-                    rm -f diff.patch
-                  fi
-                  cd -
-
-                  if [ -s mirrors/$safe_name/diff.patch ]; then
-                    {
-                      echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Diff - $repo ($branch)</title></head>"
-                      echo "<body style='font-family:monospace;background:#0f1115;color:#e5e7eb;padding:20px'>"
-                      echo "<h1>$repo ($branch)</h1><p>$last_sha → $upstream_sha</p><pre>"
-                      sed -e 's/^+/<span style="color:#22c55e">+/' \
-                          -e 's/^-/<span style="color:#ef4444">-/' \
-                          -e 's/^ /<span style="color:#9ca3af"> /' mirrors/$safe_name/diff.patch
-                      echo "</pre></body></html>"
-                    } > "$diff_file"
-                  fi
-                fi
 
                 echo "$upstream_sha" > "$state_file"
                 UPDATED=$((UPDATED+1))
@@ -118,8 +110,8 @@ jobs:
 
               CARDS="$CARDS
               <div class='card'>
-                <div><b>$repo</b> [$branch]</div>
-                <div>Upstream: $upstream_sha</div>
+                <div><b>$repo</b></div>
+                <div>Branch: $branch</div>
                 <div>Status: <span class='$cls'>$status</span></div>
                 <a href='$diff_file'>View Diff</a>
               </div>"
@@ -128,7 +120,6 @@ jobs:
               <tr><td>$repo</td><td>$branch</td><td>$upstream_sha</td><td>$status</td></tr>"
 
             done
-
           done < mirror-list.txt
 
           if [ ! -f stats/history.csv ]; then
