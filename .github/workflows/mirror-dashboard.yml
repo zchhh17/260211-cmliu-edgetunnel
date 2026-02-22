@@ -1,0 +1,99 @@
+name: Generate Mirror Dashboard
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *"
+  push:
+    branches: [ main ]
+
+jobs:
+  dashboard:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Generate dashboard.html
+        run: |
+          set -e
+
+          mkdir -p public
+
+          CARDS=""
+
+          while read -r repo; do
+            name=$(basename "$repo")
+            CARDS="$CARDS
+            <div class='card'>
+              <h2>$name</h2>
+              <p>
+                <a href='diff-$name-main.html' target='_blank'>Main Diff</a> |
+                <a href='diff-$name-beta2.0.html' target='_blank'>Beta2.0 Diff</a>
+              </p>
+            </div>"
+          done < mirror-list.txt
+
+          cat > dashboard.html <<EOF
+          <!DOCTYPE html>
+          <html lang="zh-CN">
+          <head>
+          <meta charset="UTF-8" />
+          <title>Mirror Dashboard</title>
+          <style>
+          body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont;
+            background: #0f172a;
+            color: #e5e7eb;
+            padding: 30px;
+          }
+          h1 {
+            margin-bottom: 20px;
+          }
+          .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+          }
+          .card {
+            background: #020617;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 10px 20px rgba(0,0,0,.4);
+            transition: transform .2s;
+          }
+          .card:hover {
+            transform: translateY(-4px);
+          }
+          .card h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+          }
+          a {
+            color: #38bdf8;
+            text-decoration: none;
+          }
+          a:hover {
+            text-decoration: underline;
+          }
+          </style>
+          </head>
+          <body>
+          <h1>📊 Mirror Dashboard</h1>
+          <div class="grid">
+          $CARDS
+          </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Commit dashboard
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add dashboard.html
+          git commit -m "chore: regenerate dashboard" || echo "No changes"
+          git push
