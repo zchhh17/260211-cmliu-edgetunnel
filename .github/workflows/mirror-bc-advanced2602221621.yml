@@ -127,24 +127,30 @@ jobs:
           fi
           echo "$(date -u +%Y-%m-%dT%H:%M:%SZ),$UPDATED,$SKIPPED,$FAILED" >> stats/history.csv
 
-          cat > dashboard.html <<'EOF'
-          <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Mirror Dashboard</title></head>
+          cat > dashboard.html <<EOF
+          <!DOCTYPE html>
+          <html><head><meta charset="UTF-8"><title>Mirror Dashboard</title></head>
           <body>
           <h1>Mirror Dashboard</h1>
-          <div>'"$CARDS"'</div>
+          <p>Updated: $UPDATED | Skipped: $SKIPPED | Failed: $FAILED</p>
+          <div>
+          $CARDS
+          </div>
           </body></html>
           EOF
 
-          cat > history.html <<'EOF'
-          <!DOCTYPE html><html><head><meta charset="UTF-8"><title>History</title></head>
+          cat > history.html <<EOF
+          <!DOCTYPE html>
+          <html><head><meta charset="UTF-8"><title>History</title></head>
           <body><table border="1">
           <tr><th>Repo</th><th>Branch</th><th>SHA</th><th>Status</th></tr>
-          '"$HISTORY_ROWS"'
+          $HISTORY_ROWS
           </table></body></html>
           EOF
 
-          cat > trend.html <<'EOF'
-          <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Trend</title>
+          cat > trend.html <<EOF
+          <!DOCTYPE html>
+          <html><head><meta charset="UTF-8"><title>Trend</title>
           <script src="https://cdn.jsdelivr.net/npm/chart.js"></script></head>
           <body><canvas id="c"></canvas>
           <script>
