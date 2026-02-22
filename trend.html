@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html><head><meta charset="UTF-8">
-<title>Trend</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-<canvas id="c"></canvas>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Trend</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script></head>
+<body><canvas id="c"></canvas>
 <script>
 fetch('stats/history.csv').then(r=>r.text()).then(t=>{
   const L=t.trim().split('\n').slice(1),lab=[],u=[],s=[],f=[];
@@ -15,5 +11,4 @@ fetch('stats/history.csv').then(r=>r.text()).then(t=>{
     {label:'Failed',data:f,borderColor:'red'}
   ]}});
 });
-</script>
-</body></html>
+</script></body></html>
