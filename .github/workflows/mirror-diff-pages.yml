@@ -65,7 +65,7 @@ jobs:
              <a class="btn" href="./dashboard.html">⬅ 返回 Dashboard</a>
            </div>
            <pre>
-       HTMLEOF
+           HTMLEOF
 
             sed -e 's/^+/<span style="color:#22c55e">+/' \
                 -e 's/^-/<span style="color:#ef4444">-/' \
