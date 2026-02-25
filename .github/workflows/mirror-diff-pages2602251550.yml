@@ -1,0 +1,84 @@
+name: Mirror Diff Pages
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *"
+
+jobs:
+  diff:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: infra
+
+      - name: Setup git
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git
+
+      - name: Generate diff pages
+        run: |
+          set -Eeuo pipefail
+
+          make_diff() {
+            branch="$1"
+            src_sha="$2"
+            dst_sha="$3"
+            out="public/diff-${safe_name}-${branch}.html"
+
+            cat > "$out" <<'EOF'
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Diff</title>
+<style>
+body{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0b1220;color:#e5e7eb;padding:16px}
+a{color:#60a5fa;text-decoration:none}
+pre{white-space:pre-wrap;line-height:1.45}
+.header{display:flex;gap:12px;margin-bottom:16px}
+.btn{background:#1f2933;padding:6px 12px;border-radius:8px}
+</style>
+</head>
+<body>
+<div class="header">
+  <a class="btn" href="./dashboard.html">⬅ 返回 Dashboard</a>
+</div>
+<pre>
+EOF
+
+            sed -e 's/^+/<span style="color:#22c55e">+/' \
+                -e 's/^-/<span style="color:#ef4444">-/' \
+                -e 's/^ /<span style="color:#9ca3af"> /' diff.patch >> "$out"
+
+            cat >> "$out" <<'EOF'
+</pre>
+</body>
+</html>
+EOF
+          }
+
+            sed -e 's/^+/<span style="color:#22c55e">+/' \
+                -e 's/^-/<span style="color:#ef4444">-/' \
+                -e 's/^ /<span style="color:#9ca3af"> /' diff.patch >> "$out"
+
+            echo "</pre></body></html>" >> "$out"
+
+            rm -rf src2 dst2 diff.patch
+          }
+
+          make_diff main "$src_main" "$dst_main"
+          make_diff beta2.0 "$src_beta" "$dst_beta"
+
+      - name: Commit diff pages
+        run: |
+          git config user.name "mirror-bot"
+          git config user.email "mirror-bot@users.noreply.github.com"
+          git add public/diff-*.html || true
+          git commit -m "chore: update diff pages" || echo "No changes"
+          git push
