@@ -1,0 +1,94 @@
+name: Mirror Diff Pages (Safe)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *"
+
+jobs:
+  diff:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: infra
+
+      - name: Setup git
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git
+
+      - name: Generate diff pages (safe, no heredoc)
+        run: |
+          set -Eeuo pipefail
+
+          mkdir -p public tmp
+
+          # ===== main =====
+          rm -rf tmp/src tmp/dst
+          git clone https://github.com/cmliu/edgetunnel.git tmp/src
+          git clone https://github.com/${{ github.repository }}.git tmp/dst
+
+          cd tmp/src
+          git checkout main
+          cd ../dst
+          git checkout main
+          cd ..
+
+          diff -ruN src dst > diff-main.patch || true
+
+          out_main="public/diff-cmliu-edgetunnel-main.html"
+          echo "<!doctype html>" > "$out_main"
+          echo "<html><head><meta charset='utf-8'><title>Main Diff</title>" >> "$out_main"
+          echo "<style>body{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0b1220;color:#e5e7eb;padding:16px}a{color:#60a5fa}pre{white-space:pre-wrap;line-height:1.45}</style>" >> "$out_main"
+          echo "</head><body>" >> "$out_main"
+          echo "<h1>Main Diff</h1>" >> "$out_main"
+          echo "<a href='./dashboard.html'>⬅ 返回 Dashboard</a>" >> "$out_main"
+          echo "<pre>" >> "$out_main"
+
+          sed -e 's/^+/<span style="color:#22c55e">+/' \
+              -e 's/^-/<span style="color:#ef4444">-/' \
+              -e 's/^ /<span style="color:#9ca3af"> /' diff-main.patch >> "$out_main"
+
+          echo "</pre></body></html>" >> "$out_main"
+
+          # ===== beta2.0 =====
+          rm -rf tmp/src tmp/dst
+          git clone https://github.com/cmliu/edgetunnel.git tmp/src
+          git clone https://github.com/${{ github.repository }}.git tmp/dst
+
+          cd tmp/src
+          git checkout beta2.0 || git checkout main
+          cd ../dst
+          git checkout beta2.0 || git checkout main
+          cd ..
+
+          diff -ruN src dst > diff-beta.patch || true
+
+          out_beta="public/diff-cmliu-edgetunnel-beta2.0.html"
+          echo "<!doctype html>" > "$out_beta"
+          echo "<html><head><meta charset='utf-8'><title>Beta2.0 Diff</title>" >> "$out_beta"
+          echo "<style>body{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0b1220;color:#e5e7eb;padding:16px}a{color:#60a5fa}pre{white-space:pre-wrap;line-height:1.45}</style>" >> "$out_beta"
+          echo "</head><body>" >> "$out_beta"
+          echo "<h1>Beta2.0 Diff</h1>" >> "$out_beta"
+          echo "<a href='./dashboard.html'>⬅ 返回 Dashboard</a>" >> "$out_beta"
+          echo "<pre>" >> "$out_beta"
+
+          sed -e 's/^+/<span style="color:#22c55e">+/' \
+              -e 's/^-/<span style="color:#ef4444">-/' \
+              -e 's/^ /<span style="color:#9ca3af"> /' diff-beta.patch >> "$out_beta"
+
+          echo "</pre></body></html>" >> "$out_beta"
+
+          rm -rf tmp diff-main.patch diff-beta.patch
+
+      - name: Commit diff pages
+        run: |
+          git config user.name "mirror-bot"
+          git config user.email "mirror-bot@users.noreply.github.com"
+          git add public/diff-*.html
+          git commit -m "chore: update diff pages" || echo "No changes"
+          git push origin infra
