@@ -1,9 +1,7 @@
-name: Mirror Diff Pages (main + beta2.0)
+name: Diff Test Safe
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 */6 * * *"
 
 jobs:
   diff:
@@ -16,70 +14,25 @@ jobs:
         with:
           ref: infra
 
-      - name: Setup git
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y git
-
-      - name: Generate diff pages
+      - name: Create test diff page
         run: |
           set -Eeuo pipefail
+          mkdir -p public
 
-          repo="cmliu/edgetunnel"
-          safe_name="cmliu-edgetunnel"
+          echo "<!doctype html>" > public/diff-test.html
+          echo "<html><head><meta charset='utf-8'><title>Diff Test</title></head>" >> public/diff-test.html
+          echo "<body style='background:#0b1220;color:#e5e7eb;font-family:monospace'>" >> public/diff-test.html
+          echo "<h1>Diff Test OK</h1>" >> public/diff-test.html
+          echo "<pre>" >> public/diff-test.html
+          echo "+ added line" >> public/diff-test.html
+          echo "- removed line" >> public/diff-test.html
+          echo "  context line" >> public/diff-test.html
+          echo "</pre></body></html>" >> public/diff-test.html
 
-          make_diff() {
-            local branch="$1"
-            local out="diff-${safe_name}-${branch}.html"
-
-            rm -rf src dst || true
-            git clone --depth 1 --branch "$branch" https://github.com/$repo.git src || return 0
-            git clone --depth 1 --branch "$branch" https://github.com/${{ github.repository }}.git dst || return 0
-
-            if diff -rq src dst >/dev/null 2>&1; then
-              echo "No diff for $branch"
-              return 0
-            fi
-
-            git diff --no-index src dst > diff.patch || true
-
-            cat > "$out" <<'EOF'
-            <!doctype html>
-            <html>
-            <head>
-            <meta charset="utf-8">
-            <title>Diff</title>
-            <style>
-            body{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0b1220;color:#e5e7eb;padding:16px}
-            a{color:#60a5fa;text-decoration:none}
-            pre{white-space:pre-wrap;line-height:1.45}
-            .header{display:flex;gap:12px;margin-bottom:16px}
-            .btn{background:#1f2933;padding:6px 12px;border-radius:8px}
-            </style>
-            </head>
-            <body>
-            <div class="header">
-              <a class="btn" href="./dashboard.html">⬅ 返回 Dashboard</a>
-            </div>
-            <pre>
-            EOF
-
-            sed -e 's/^+/<span style="color:#22c55e">+/' \
-                -e 's/^-/<span style="color:#ef4444">-/' \
-                -e 's/^ /<span style="color:#9ca3af"> /' diff.patch >> "$out"
-
-            echo "</pre></body></html>" >> "$out"
-
-            rm -rf src dst diff.patch || true
-          }
-
-          make_diff main
-          make_diff beta2.0
-
-      - name: Commit diff pages
+      - name: Commit page
         run: |
           git config user.name "mirror-bot"
           git config user.email "mirror-bot@users.noreply.github.com"
-          git add diff-cmliu-edgetunnel-*.html || true
-          git commit -m "chore: update diff pages" || echo "No changes"
+          git add public/diff-test.html
+          git commit -m "test: add diff test page" || echo "No changes"
           git push
