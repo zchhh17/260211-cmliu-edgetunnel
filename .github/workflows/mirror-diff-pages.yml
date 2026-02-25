@@ -32,7 +32,7 @@ jobs:
           git clone https://github.com/${{ github.repository }}.git "$ROOT/tmp/dst"
 
           cd "$ROOT/tmp/src"
-          branches=$(git for-each-ref --format='%(refname:short)' refs/remotes/origin | sed 's|origin/||' | grep -Ev '^(HEAD|origin|infra)$')
+          branches=$(git for-each-ref --format='%(refname:short)' refs/remotes/origin \  | sed 's|origin/||' \  | grep -Ev '^(HEAD|origin|infra)$')
 
           for br in $branches; do
             echo "🔎 Diff branch: $br"
@@ -43,9 +43,6 @@ jobs:
             cd "$ROOT/tmp/dst"
             git fetch origin "$br" || true
             git checkout -B "$br" "origin/$br" || continue
-
-            # 后面是你原来的 diff 逻辑
-          done
 
             cd "$ROOT/tmp"
             diff -ruN src dst > "$ROOT/diff.patch" || true
