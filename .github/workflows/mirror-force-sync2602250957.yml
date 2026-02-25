@@ -1,4 +1,4 @@
-name: Mirror Force Sync (All Branches - Safe)
+name: Mirror Force Sync 2602250957(All Branches - Safe)
 
 on:
   workflow_dispatch:
@@ -35,6 +35,47 @@ jobs:
 
             git remote add target https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
 
+            echo "📦 Remote branches:"
+            git for-each-ref --format='%(refname:short)' refs/heads
+
+            for br in $(git for-each-ref --format='%(refname:short)' refs/heads); do
+              if [ "$br" = "infra" ]; then
+                echo "⏭ Skip infra"
+                continue
+              fi
+
+              echo "🔥 Force pushing branch: $br"
+              git push target "refs/heads/$br:refs/heads/$br" --force
+            done
+
+            echo "🏷 Sync tags"
+            git push target --tags --force || echo "No tags to push"
+
+            cd ..
+            rm -rf work
+
+          done < mirror-list.txt
+
+      - name: Write mirror status
+        run: |
+          mkdir -p public/status
+          cat > public/status/cmliu-edgetunnel.json << 'EOF'
+          {
+            "repo": "cmliu/edgetunnel",
+            "time": "$(date -u +'%Y-%m-%d %H:%M:%S UTC')",
+            "branches": ["main", "beta2.0", "1.0"],
+            "status": "ok",
+            "run_id": "${{ github.run_id }}"
+          }
+          EOF
+
+      - name: Commit status file
+        run: |
+          git config user.name "mirror-bot"
+          git config user.email "mirror-bot@users.noreply.github.com"
+          git add public/status/cmliu-edgetunnel.json
+          git commit -m "chore: update mirror status" || echo "No changes"
+          git push
             echo "📦 Remote branches:"
             git for-each-ref --format='%(refname:short)' refs/heads
 
