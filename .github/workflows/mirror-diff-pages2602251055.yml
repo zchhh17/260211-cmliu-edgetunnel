@@ -47,16 +47,17 @@ jobs:
           mkdir -p public
 
           make_diff() {
-            local branch="$1"
-            local src_sha="$2"
-            local dst_sha="$3"
-            local out="public/diff-${safe_name}-${branch}.html"
+            branch="$1"
+            src_sha="$2"
+            dst_sha="$3"
+            out="public/diff-${safe_name}-${branch}.html"
 
             if [ -z "$src_sha" ] || [ -z "$dst_sha" ]; then
               echo "Skip $branch (missing sha)"
-              return
+              return 0
             fi
 
+            rm -rf src2 dst2 diff.patch
             git clone https://github.com/$repo.git src2
             cd src2
             git checkout "$src_sha"
@@ -69,12 +70,12 @@ jobs:
 
             git diff --no-index src2 dst2 > diff.patch || true
 
-            cat > "$out"<<EOF
+            cat > "$out" <<'EOF'
             <!doctype html>
             <html>
             <head>
             <meta charset="utf-8">
-            <title>Diff $repo $branch</title>
+            <title>Diff</title>
             <style>
             body{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0b1220;color:#e5e7eb;padding:16px}
             a{color:#60a5fa;text-decoration:none}
@@ -86,9 +87,7 @@ jobs:
             <body>
             <div class="header">
               <a class="btn" href="./dashboard.html">⬅ 返回 Dashboard</a>
-              <a class="btn" href="./diff-${safe_name}-${branch}.html">🔄 刷新</a>
             </div>
-            <h1>Diff: $repo ($branch)</h1>
             <pre>
             EOF
 
@@ -108,6 +107,6 @@ jobs:
         run: |
           git config user.name "mirror-bot"
           git config user.email "mirror-bot@users.noreply.github.com"
-          git add public/diff-*.html
+          git add public/diff-*.html || true
           git commit -m "chore: update diff pages" || echo "No changes"
           git push
