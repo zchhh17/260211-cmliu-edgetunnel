@@ -57,10 +57,10 @@ jobs:
                 -e 's/^ /<span style="color:#9ca3af"> /' diff.patch >> "$out"
 
             cat >> "$out" <<'EOF'
-</pre>
-</body>
-</html>
-EOF
+            </pre>
+            </body>
+            </html>
+            EOF
           }
 
             sed -e 's/^+/<span style="color:#22c55e">+/' \
