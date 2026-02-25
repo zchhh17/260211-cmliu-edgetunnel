@@ -1,7 +1,9 @@
-name: Diff Test Safe
+name: Mirror Diff Pages (All Branches)
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *"
 
 jobs:
   diff:
@@ -14,25 +16,64 @@ jobs:
         with:
           ref: infra
 
-      - name: Create test diff page
+      - name: Setup git
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git
+
+      - name: Generate diff pages (all branches)
         run: |
           set -Eeuo pipefail
-          mkdir -p public
 
-          echo "<!doctype html>" > public/diff-test.html
-          echo "<html><head><meta charset='utf-8'><title>Diff Test</title></head>" >> public/diff-test.html
-          echo "<body style='background:#0b1220;color:#e5e7eb;font-family:monospace'>" >> public/diff-test.html
-          echo "<h1>Diff Test OK</h1>" >> public/diff-test.html
-          echo "<pre>" >> public/diff-test.html
-          echo "+ added line" >> public/diff-test.html
-          echo "- removed line" >> public/diff-test.html
-          echo "  context line" >> public/diff-test.html
-          echo "</pre></body></html>" >> public/diff-test.html
+          ROOT="$GITHUB_WORKSPACE"
+          mkdir -p "$ROOT/public" "$ROOT/tmp"
 
-      - name: Commit page
+          git clone https://github.com/cmliu/edgetunnel.git "$ROOT/tmp/src"
+          git clone https://github.com/${{ github.repository }}.git "$ROOT/tmp/dst"
+
+          cd "$ROOT/tmp/src"
+          branches=$(git for-each-ref --format='%(refname:short)' refs/remotes/origin | sed 's|origin/||')
+
+          for br in $branches; do
+            echo "🔎 Diff branch: $br"
+
+            cd "$ROOT/tmp/src"
+            git checkout "$br" || continue
+
+            cd "$ROOT/tmp/dst"
+            git checkout "$br" || continue
+
+            cd "$ROOT/tmp"
+            diff -ruN src dst > "$ROOT/diff.patch" || true
+
+            out="$ROOT/public/diff-cmliu-edgetunnel-$br.html"
+
+            {
+              echo "<!doctype html>"
+              echo "<html><head><meta charset='utf-8'><title>$br Diff</title>"
+              echo "<style>"
+              echo "body{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0b1220;color:#e5e7eb;padding:16px}"
+              echo "a{color:#60a5fa;text-decoration:none}"
+              echo "pre{white-space:pre-wrap;line-height:1.45}"
+              echo ".btn{display:inline-block;background:#1f2933;padding:6px 12px;border-radius:8px;margin-bottom:12px}"
+              echo "</style></head><body>"
+              echo "<a class='btn' href='./dashboard.html'>⬅ 返回 Dashboard</a>"
+              echo "<h1>$br Diff</h1>"
+              echo "<pre>"
+              sed -e 's/^+/<span style="color:#22c55e">+/' \
+                  -e 's/^-/<span style="color:#ef4444">-/' \
+                  -e 's/^ /<span style="color:#9ca3af"> /' "$ROOT/diff.patch"
+              echo "</pre></body></html>"
+            } > "$out"
+
+          done
+
+          rm -rf "$ROOT/tmp" "$ROOT/diff.patch"
+
+      - name: Commit diff pages
         run: |
           git config user.name "mirror-bot"
           git config user.email "mirror-bot@users.noreply.github.com"
-          git add public/diff-test.html
-          git commit -m "test: add diff test page" || echo "No changes"
+          git add public/diff-*.html || true
+          git commit -m "chore: update diff pages (all branches)" || echo "No changes"
           git push
