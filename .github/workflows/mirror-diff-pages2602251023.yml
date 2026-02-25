@@ -90,7 +90,7 @@ jobs:
             </div>
             <h1>Diff: $repo ($branch)</h1>
             <pre>
-            EOF
+              EOF
 
             sed -e 's/^+/<span style="color:#22c55e">+/' \
                 -e 's/^-/<span style="color:#ef4444">-/' \
