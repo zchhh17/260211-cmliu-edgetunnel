@@ -69,7 +69,7 @@ jobs:
 
             git diff --no-index src2 dst2 > diff.patch || true
 
-            cat > "$out" <<EOF
+            cat > "$out"  <<EOF
             <!doctype html>
             <html>
             <head>
@@ -90,7 +90,7 @@ jobs:
             </div>
             <h1>Diff: $repo ($branch)</h1>
             <pre>
-              EOF
+            EOF
 
             sed -e 's/^+/<span style="color:#22c55e">+/' \
                 -e 's/^-/<span style="color:#ef4444">-/' \
