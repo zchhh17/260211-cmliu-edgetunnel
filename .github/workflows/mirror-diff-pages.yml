@@ -32,12 +32,9 @@ jobs:
             local branch="$1"
             local out="diff-${safe_name}-${branch}.html"
 
-            rm -rf src dst
+            rm -rf src dst || true
             git clone --depth 1 --branch "$branch" https://github.com/$repo.git src || return 0
             git clone --depth 1 --branch "$branch" https://github.com/${{ github.repository }}.git dst || return 0
-
-            (cd src && git rev-parse HEAD) > src.sha
-            (cd dst && git rev-parse HEAD) > dst.sha
 
             if diff -rq src dst >/dev/null 2>&1; then
               echo "No diff for $branch"
@@ -73,7 +70,7 @@ EOF
 
             echo "</pre></body></html>" >> "$out"
 
-            rm -rf src dst diff.patch src.sha dst.sha
+            rm -rf src dst diff.patch || true
           }
 
           make_diff main
