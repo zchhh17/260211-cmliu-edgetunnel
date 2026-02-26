@@ -6,8 +6,8 @@
 <a href='./dashboard.html'>⬅ 返回 Dashboard</a>
 <pre>
 diff -ruN src/.git/config dst/.git/config
-<span style="color:#ef4444">--- src/.git/config	2026-02-26 01:58:17.976502747 +0000
-<span style="color:#22c55e">+++ dst/.git/config	2026-02-26 01:58:20.654326218 +0000
+<span style="color:#ef4444">--- src/.git/config	2026-02-26 06:58:46.947978434 +0000
+<span style="color:#22c55e">+++ dst/.git/config	2026-02-26 06:58:50.861403728 +0000
 @@ -4,8 +4,11 @@
 <span style="color:#9ca3af"> 	bare = false
 <span style="color:#9ca3af"> 	logallrefupdates = true
@@ -23,58 +23,223 @@ diff -ruN src/.git/config dst/.git/config
 <span style="color:#9ca3af"> 	merge = refs/heads/main
 Binary files src/.git/index and dst/.git/index differ
 diff -ruN src/.git/logs/HEAD dst/.git/logs/HEAD
-<span style="color:#ef4444">--- src/.git/logs/HEAD	2026-02-26 01:58:20.394970042 +0000
-<span style="color:#22c55e">+++ dst/.git/logs/HEAD	2026-02-26 01:58:20.655200319 +0000
+<span style="color:#ef4444">--- src/.git/logs/HEAD	2026-02-26 06:58:50.607454811 +0000
+<span style="color:#22c55e">+++ dst/.git/logs/HEAD	2026-02-26 06:58:50.862348173 +0000
 @@ -1,2 +1,2 @@
-<span style="color:#ef4444">-0000000000000000000000000000000000000000 f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.hpp4ryfwmmzepdm2on1453n2fb.cx.internal.cloudapp.net> 1772071097 +0000	clone: from https://github.com/cmliu/edgetunnel.git
-<span style="color:#ef4444">-f36359303d4d7b1b462faaf1f9674114fbd1d5bc f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.hpp4ryfwmmzepdm2on1453n2fb.cx.internal.cloudapp.net> 1772071100 +0000	checkout: moving from main to main
-<span style="color:#22c55e">+0000000000000000000000000000000000000000 018799535976ef96f12ac0e5a3950bf7429f4dac runner <runner@runnervmnay03.hpp4ryfwmmzepdm2on1453n2fb.cx.internal.cloudapp.net> 1772071100 +0000	clone: from https://github.com/zchhh17/260211-cmliu-edgetunnel.git
-<span style="color:#22c55e">+018799535976ef96f12ac0e5a3950bf7429f4dac f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.hpp4ryfwmmzepdm2on1453n2fb.cx.internal.cloudapp.net> 1772071100 +0000	checkout: moving from infra to main
+<span style="color:#ef4444">-0000000000000000000000000000000000000000 029e526a491e83942613e6868a4fa9be003739a0 runner <runner@runnervmnay03.holnobdobhrerffkjldhcg4lqb.dx.internal.cloudapp.net> 1772089126 +0000	clone: from https://github.com/cmliu/edgetunnel.git
+<span style="color:#ef4444">-029e526a491e83942613e6868a4fa9be003739a0 029e526a491e83942613e6868a4fa9be003739a0 runner <runner@runnervmnay03.holnobdobhrerffkjldhcg4lqb.dx.internal.cloudapp.net> 1772089130 +0000	checkout: moving from main to main
+<span style="color:#22c55e">+0000000000000000000000000000000000000000 5c9c667c0a7ba5e856d9f730ba4e54115867fecc runner <runner@runnervmnay03.holnobdobhrerffkjldhcg4lqb.dx.internal.cloudapp.net> 1772089130 +0000	clone: from https://github.com/zchhh17/260211-cmliu-edgetunnel.git
+<span style="color:#22c55e">+5c9c667c0a7ba5e856d9f730ba4e54115867fecc f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.holnobdobhrerffkjldhcg4lqb.dx.internal.cloudapp.net> 1772089130 +0000	checkout: moving from infra to main
 diff -ruN src/.git/logs/refs/heads/infra dst/.git/logs/refs/heads/infra
 <span style="color:#ef4444">--- src/.git/logs/refs/heads/infra	1970-01-01 00:00:00.000000000 +0000
-<span style="color:#22c55e">+++ dst/.git/logs/refs/heads/infra	2026-02-26 01:58:20.177543191 +0000
+<span style="color:#22c55e">+++ dst/.git/logs/refs/heads/infra	2026-02-26 06:58:50.387907101 +0000
 @@ -0,0 +1 @@
-<span style="color:#22c55e">+0000000000000000000000000000000000000000 018799535976ef96f12ac0e5a3950bf7429f4dac runner <runner@runnervmnay03.hpp4ryfwmmzepdm2on1453n2fb.cx.internal.cloudapp.net> 1772071100 +0000	clone: from https://github.com/zchhh17/260211-cmliu-edgetunnel.git
+<span style="color:#22c55e">+0000000000000000000000000000000000000000 5c9c667c0a7ba5e856d9f730ba4e54115867fecc runner <runner@runnervmnay03.holnobdobhrerffkjldhcg4lqb.dx.internal.cloudapp.net> 1772089130 +0000	clone: from https://github.com/zchhh17/260211-cmliu-edgetunnel.git
 diff -ruN src/.git/logs/refs/heads/main dst/.git/logs/refs/heads/main
-<span style="color:#ef4444">--- src/.git/logs/refs/heads/main	2026-02-26 01:58:17.976139809 +0000
-<span style="color:#22c55e">+++ dst/.git/logs/refs/heads/main	2026-02-26 01:58:20.654326218 +0000
+<span style="color:#ef4444">--- src/.git/logs/refs/heads/main	2026-02-26 06:58:46.947618768 +0000
+<span style="color:#22c55e">+++ dst/.git/logs/refs/heads/main	2026-02-26 06:58:50.861403728 +0000
 @@ -1 +1 @@
-<span style="color:#ef4444">-0000000000000000000000000000000000000000 f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.hpp4ryfwmmzepdm2on1453n2fb.cx.internal.cloudapp.net> 1772071097 +0000	clone: from https://github.com/cmliu/edgetunnel.git
-<span style="color:#22c55e">+0000000000000000000000000000000000000000 f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.hpp4ryfwmmzepdm2on1453n2fb.cx.internal.cloudapp.net> 1772071100 +0000	branch: Created from refs/remotes/origin/main
+<span style="color:#ef4444">-0000000000000000000000000000000000000000 029e526a491e83942613e6868a4fa9be003739a0 runner <runner@runnervmnay03.holnobdobhrerffkjldhcg4lqb.dx.internal.cloudapp.net> 1772089126 +0000	clone: from https://github.com/cmliu/edgetunnel.git
+<span style="color:#22c55e">+0000000000000000000000000000000000000000 f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.holnobdobhrerffkjldhcg4lqb.dx.internal.cloudapp.net> 1772089130 +0000	branch: Created from refs/remotes/origin/main
 diff -ruN src/.git/logs/refs/remotes/origin/HEAD dst/.git/logs/refs/remotes/origin/HEAD
-<span style="color:#ef4444">--- src/.git/logs/refs/remotes/origin/HEAD	2026-02-26 01:58:17.975532335 +0000
-<span style="color:#22c55e">+++ dst/.git/logs/refs/remotes/origin/HEAD	2026-02-26 01:58:20.176926739 +0000
+<span style="color:#ef4444">--- src/.git/logs/refs/remotes/origin/HEAD	2026-02-26 06:58:46.947022197 +0000
+<span style="color:#22c55e">+++ dst/.git/logs/refs/remotes/origin/HEAD	2026-02-26 06:58:50.387256318 +0000
 @@ -1 +1 @@
-<span style="color:#ef4444">-0000000000000000000000000000000000000000 f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.hpp4ryfwmmzepdm2on1453n2fb.cx.internal.cloudapp.net> 1772071097 +0000	clone: from https://github.com/cmliu/edgetunnel.git
-<span style="color:#22c55e">+0000000000000000000000000000000000000000 018799535976ef96f12ac0e5a3950bf7429f4dac runner <runner@runnervmnay03.hpp4ryfwmmzepdm2on1453n2fb.cx.internal.cloudapp.net> 1772071100 +0000	clone: from https://github.com/zchhh17/260211-cmliu-edgetunnel.git
-Binary files src/.git/objects/pack/pack-5e259592461418e34812ab6914ee599793adf1d7.idx and dst/.git/objects/pack/pack-5e259592461418e34812ab6914ee599793adf1d7.idx differ
-Binary files src/.git/objects/pack/pack-5e259592461418e34812ab6914ee599793adf1d7.pack and dst/.git/objects/pack/pack-5e259592461418e34812ab6914ee599793adf1d7.pack differ
-Binary files src/.git/objects/pack/pack-5e259592461418e34812ab6914ee599793adf1d7.rev and dst/.git/objects/pack/pack-5e259592461418e34812ab6914ee599793adf1d7.rev differ
-Binary files src/.git/objects/pack/pack-cc9c9a91cc03ef35ca6b5f0a2f734fd275788013.idx and dst/.git/objects/pack/pack-cc9c9a91cc03ef35ca6b5f0a2f734fd275788013.idx differ
-Binary files src/.git/objects/pack/pack-cc9c9a91cc03ef35ca6b5f0a2f734fd275788013.pack and dst/.git/objects/pack/pack-cc9c9a91cc03ef35ca6b5f0a2f734fd275788013.pack differ
-Binary files src/.git/objects/pack/pack-cc9c9a91cc03ef35ca6b5f0a2f734fd275788013.rev and dst/.git/objects/pack/pack-cc9c9a91cc03ef35ca6b5f0a2f734fd275788013.rev differ
+<span style="color:#ef4444">-0000000000000000000000000000000000000000 029e526a491e83942613e6868a4fa9be003739a0 runner <runner@runnervmnay03.holnobdobhrerffkjldhcg4lqb.dx.internal.cloudapp.net> 1772089126 +0000	clone: from https://github.com/cmliu/edgetunnel.git
+<span style="color:#22c55e">+0000000000000000000000000000000000000000 5c9c667c0a7ba5e856d9f730ba4e54115867fecc runner <runner@runnervmnay03.holnobdobhrerffkjldhcg4lqb.dx.internal.cloudapp.net> 1772089130 +0000	clone: from https://github.com/zchhh17/260211-cmliu-edgetunnel.git
+Binary files src/.git/objects/pack/pack-270d0fd6b9f5660a6a514353f2894aad81af22e8.idx and dst/.git/objects/pack/pack-270d0fd6b9f5660a6a514353f2894aad81af22e8.idx differ
+Binary files src/.git/objects/pack/pack-270d0fd6b9f5660a6a514353f2894aad81af22e8.pack and dst/.git/objects/pack/pack-270d0fd6b9f5660a6a514353f2894aad81af22e8.pack differ
+Binary files src/.git/objects/pack/pack-270d0fd6b9f5660a6a514353f2894aad81af22e8.rev and dst/.git/objects/pack/pack-270d0fd6b9f5660a6a514353f2894aad81af22e8.rev differ
+Binary files src/.git/objects/pack/pack-b71826804ee431cfb313862bd017af84fd0042ec.idx and dst/.git/objects/pack/pack-b71826804ee431cfb313862bd017af84fd0042ec.idx differ
+Binary files src/.git/objects/pack/pack-b71826804ee431cfb313862bd017af84fd0042ec.pack and dst/.git/objects/pack/pack-b71826804ee431cfb313862bd017af84fd0042ec.pack differ
+Binary files src/.git/objects/pack/pack-b71826804ee431cfb313862bd017af84fd0042ec.rev and dst/.git/objects/pack/pack-b71826804ee431cfb313862bd017af84fd0042ec.rev differ
 diff -ruN src/.git/packed-refs dst/.git/packed-refs
-<span style="color:#ef4444">--- src/.git/packed-refs	2026-02-26 01:58:17.975341569 +0000
-<span style="color:#22c55e">+++ dst/.git/packed-refs	2026-02-26 01:58:20.176747235 +0000
+<span style="color:#ef4444">--- src/.git/packed-refs	2026-02-26 06:58:46.946836207 +0000
+<span style="color:#22c55e">+++ dst/.git/packed-refs	2026-02-26 06:58:50.387067082 +0000
 @@ -1,4 +1,9 @@
 <span style="color:#9ca3af"> # pack-refs with: peeled fully-peeled sorted 
 <span style="color:#9ca3af"> 8292713f2ad7242c3ed6c893e7a772b7d8eaee48 refs/remotes/origin/1.0
 <span style="color:#9ca3af"> 01911939a78a7a0cf717fbec4cf59da5db9d55f7 refs/remotes/origin/beta2.0
-<span style="color:#22c55e">+018799535976ef96f12ac0e5a3950bf7429f4dac refs/remotes/origin/infra
-<span style="color:#9ca3af"> f36359303d4d7b1b462faaf1f9674114fbd1d5bc refs/remotes/origin/main
+<span style="color:#ef4444">-029e526a491e83942613e6868a4fa9be003739a0 refs/remotes/origin/main
+<span style="color:#22c55e">+5c9c667c0a7ba5e856d9f730ba4e54115867fecc refs/remotes/origin/infra
+<span style="color:#22c55e">+f36359303d4d7b1b462faaf1f9674114fbd1d5bc refs/remotes/origin/main
 <span style="color:#22c55e">+c11323ef3efb228faa79dd20de3735a7e9d9d2ea refs/tags/mirror-1770878121-cmliu-edgetunnel
 <span style="color:#22c55e">+41c2872847161d93d4588654529338f10cdb6b03 refs/tags/mirror-1770967166-cmliu-edgetunnel
 <span style="color:#22c55e">+f54e1fcd01985fadb307efa6dd460a4818811b09 refs/tags/mirror-1771180835-cmliu-edgetunnel
 <span style="color:#22c55e">+f54e1fcd01985fadb307efa6dd460a4818811b09 refs/tags/mirror-5
 diff -ruN src/.git/refs/heads/infra dst/.git/refs/heads/infra
 <span style="color:#ef4444">--- src/.git/refs/heads/infra	1970-01-01 00:00:00.000000000 +0000
-<span style="color:#22c55e">+++ dst/.git/refs/heads/infra	2026-02-26 01:58:20.177543191 +0000
+<span style="color:#22c55e">+++ dst/.git/refs/heads/infra	2026-02-26 06:58:50.387907101 +0000
 @@ -0,0 +1 @@
-<span style="color:#22c55e">+018799535976ef96f12ac0e5a3950bf7429f4dac
+<span style="color:#22c55e">+5c9c667c0a7ba5e856d9f730ba4e54115867fecc
+diff -ruN src/.git/refs/heads/main dst/.git/refs/heads/main
+<span style="color:#ef4444">--- src/.git/refs/heads/main	2026-02-26 06:58:46.947618768 +0000
+<span style="color:#22c55e">+++ dst/.git/refs/heads/main	2026-02-26 06:58:50.861349797 +0000
+@@ -1 +1 @@
+<span style="color:#ef4444">-029e526a491e83942613e6868a4fa9be003739a0
+<span style="color:#22c55e">+f36359303d4d7b1b462faaf1f9674114fbd1d5bc
 diff -ruN src/.git/refs/remotes/origin/HEAD dst/.git/refs/remotes/origin/HEAD
-<span style="color:#ef4444">--- src/.git/refs/remotes/origin/HEAD	2026-02-26 01:58:17.975532335 +0000
-<span style="color:#22c55e">+++ dst/.git/refs/remotes/origin/HEAD	2026-02-26 01:58:20.176926739 +0000
+<span style="color:#ef4444">--- src/.git/refs/remotes/origin/HEAD	2026-02-26 06:58:46.947022197 +0000
+<span style="color:#22c55e">+++ dst/.git/refs/remotes/origin/HEAD	2026-02-26 06:58:50.387256318 +0000
 @@ -1 +1 @@
 <span style="color:#ef4444">-ref: refs/remotes/origin/main
 <span style="color:#22c55e">+ref: refs/remotes/origin/infra
+diff -ruN src/README.md dst/README.md
+<span style="color:#ef4444">--- src/README.md	2026-02-26 06:58:46.948348607 +0000
+<span style="color:#22c55e">+++ dst/README.md	2026-02-26 06:58:50.390236410 +0000
+@@ -191,7 +191,6 @@
+<span style="color:#9ca3af"> - [Alexandre Kojève](https://t.me/Enkelte_notif/784)
+<span style="color:#9ca3af"> - [eooce](https://github.com/eooce/Cloudflare-proxy)
+<span style="color:#9ca3af"> - [Sukka](https://ip.skk.moe/)
+<span style="color:#ef4444">-- [zhangtaile](https://github.com/cmliu/edgetunnel/pull/999)
+<span style="color:#9ca3af"> 
+<span style="color:#9ca3af"> ---
+<span style="color:#9ca3af"> 
+diff -ruN src/_worker.js dst/_worker.js
+<span style="color:#ef4444">--- src/_worker.js	2026-02-26 06:58:46.949348621 +0000
+<span style="color:#22c55e">+++ dst/_worker.js	2026-02-26 06:58:50.860403714 +0000
+@@ -237,7 +237,7 @@
+<span style="color:#9ca3af">                         let 订阅内容 = '';
+<span style="color:#9ca3af">                         if (订阅类型 === 'mixed') {
+<span style="color:#9ca3af">                             const TLS分片参数 = config_JSON.TLS分片 == 'Shadowrocket' ? `&fragment=${encodeURIComponent('1,40-60,30-50,tlshello')}` : config_JSON.TLS分片 == 'Happ' ? `&fragment=${encodeURIComponent('3,1,tlshello')}` : '';
+<span style="color:#ef4444">-                            let 完整优选IP = [], 其他节点LINK = '', 反代IP池 = [];
+<span style="color:#22c55e">+                            let 完整优选IP = [], 其他节点LINK = '';
+<span style="color:#9ca3af"> 
+<span style="color:#9ca3af">                             if (!url.searchParams.has('sub') && config_JSON.优选订阅生成.local) { // 本地生成订阅
+<span style="color:#9ca3af">                                 const 完整优选列表 = config_JSON.优选订阅生成.本地IP库.随机IP ? (await 生成随机IP(request, config_JSON.优选订阅生成.本地IP库.随机数量, config_JSON.优选订阅生成.本地IP库.指定端口))[0] : await env.KV.get('ADD.txt') ? await 整理成数组(await env.KV.get('ADD.txt')) : (await 生成随机IP(request, config_JSON.优选订阅生成.本地IP库.随机数量, config_JSON.优选订阅生成.本地IP库.指定端口))[0];
+@@ -248,9 +248,7 @@
+<span style="color:#9ca3af">                                     } else {
+<span style="color:#9ca3af">                                         const subMatch = 元素.match(/sub\s*=\s*([^\s&#]+)/i);
+<span style="color:#9ca3af">                                         if (subMatch && subMatch[1].trim().includes('.')) {
+<span style="color:#ef4444">-                                            const 优选IP作为反代IP = 元素.toLowerCase().includes('proxyip=true');
+<span style="color:#ef4444">-                                            if (优选IP作为反代IP) 优选API.push('sub://' + subMatch[1].trim() + "?proxyip=true" + (元素.includes('#') ? ('#' + 元素.split('#')[1]) : ''));
+<span style="color:#ef4444">-                                            else 优选API.push('sub://' + subMatch[1].trim() + (元素.includes('#') ? ('#' + 元素.split('#')[1]) : ''));
+<span style="color:#22c55e">+                                            优选API.push('sub://' + subMatch[1].trim() + (元素.includes('#') ? ('#' + 元素.split('#')[1]) : ''));
+<span style="color:#9ca3af">                                         } else if (元素.toLowerCase().startsWith('https://')) {
+<span style="color:#9ca3af">                                             优选API.push(元素);
+<span style="color:#9ca3af">                                         } else if (元素.toLowerCase().includes('://')) {
+@@ -267,7 +265,6 @@
+<span style="color:#9ca3af">                                 const 合并其他节点数组 = [...new Set(其他节点.concat(请求优选API内容[1]))];
+<span style="color:#9ca3af">                                 其他节点LINK = 合并其他节点数组.length > 0 ? 合并其他节点数组.join('\n') + '\n' : '';
+<span style="color:#9ca3af">                                 const 优选API的IP = 请求优选API内容[0];
+<span style="color:#ef4444">-                                反代IP池 = 请求优选API内容[3] || [];
+<span style="color:#9ca3af">                                 完整优选IP = [...new Set(优选IP.concat(优选API的IP))];
+<span style="color:#9ca3af">                             } else { // 优选订阅生成器
+<span style="color:#9ca3af">                                 let 优选订阅生成器HOST = url.searchParams.get('sub') || config_JSON.优选订阅生成.SUB;
+@@ -276,7 +273,8 @@
+<span style="color:#9ca3af">                                 其他节点LINK += 优选生成器其他节点;
+<span style="color:#9ca3af">                             }
+<span style="color:#9ca3af">                             const ECHLINK参数 = config_JSON.ECH ? `&ech=${encodeURIComponent((config_JSON.ECHConfig.SNI ? config_JSON.ECHConfig.SNI + '+' : '') + config_JSON.ECHConfig.DNS)}` : '';
+<span style="color:#ef4444">-                            const isLoonOrSurge = ua.includes('loon') || ua.includes('surge');
+<span style="color:#22c55e">+                            let 完整节点路径 = config_JSON.随机路径 ? 随机路径(config_JSON.完整节点路径) : config_JSON.完整节点路径;
+<span style="color:#22c55e">+                            if (ua.includes('loon') || ua.includes('surge')) 完整节点路径 = 完整节点路径.replace(/,/g, '%2C');
+<span style="color:#9ca3af">                             订阅内容 = 其他节点LINK + 完整优选IP.map(原始地址 => {
+<span style="color:#9ca3af">                                 // 统一正则: 匹配 域名/IPv4/IPv6地址 + 可选端口 + 可选备注
+<span style="color:#9ca3af">                                 // 示例: 
+@@ -298,14 +296,7 @@
+<span style="color:#9ca3af">                                     return null;
+<span style="color:#9ca3af">                                 }
+<span style="color:#9ca3af"> 
+<span style="color:#ef4444">-                                let 完整节点路径 = config_JSON.完整节点路径;
+<span style="color:#ef4444">-                                if (反代IP池.length > 0) {
+<span style="color:#ef4444">-                                    const 匹配到的反代IP = 反代IP池.find(p => p.includes(节点地址));
+<span style="color:#ef4444">-                                    if (匹配到的反代IP) 完整节点路径 = (`${config_JSON.PATH}/proxyip=${匹配到的反代IP}`).replace(/\/\//g, '/') + (config_JSON.启用0RTT ? '?ed=2560' : '');
+<span style="color:#ef4444">-                                }
+<span style="color:#ef4444">-                                if (isLoonOrSurge) 完整节点路径 = 完整节点路径.replace(/,/g, '%2C');
+<span style="color:#ef4444">-
+<span style="color:#ef4444">-                                return `${协议类型}://00000000-0000-4000-8000-000000000000@${节点地址}:${节点端口}?security=tls&type=${config_JSON.传输协议 + ECHLINK参数}&host=example.com&fp=${config_JSON.Fingerprint}&sni=example.com&path=${encodeURIComponent(config_JSON.随机路径 ? 随机路径(完整节点路径) : 完整节点路径) + TLS分片参数}&encryption=none${config_JSON.跳过证书验证 ? '&insecure=1&allowInsecure=1' : ''}#${encodeURIComponent(节点备注)}`;
+<span style="color:#22c55e">+                                return `${协议类型}://00000000-0000-4000-8000-000000000000@${节点地址}:${节点端口}?security=tls&type=${config_JSON.传输协议 + ECHLINK参数}&host=example.com&fp=${config_JSON.Fingerprint}&sni=example.com&path=${encodeURIComponent(完整节点路径) + TLS分片参数}&encryption=none${config_JSON.跳过证书验证 ? '&insecure=1&allowInsecure=1' : ''}#${encodeURIComponent(节点备注)}`;
+<span style="color:#9ca3af">                             }).filter(item => item !== null).join('\n');
+<span style="color:#9ca3af">                         } else { // 订阅转换
+<span style="color:#9ca3af">                             const 订阅转换URL = `${config_JSON.订阅转换配置.SUBAPI}/sub?target=${订阅类型}&url=${encodeURIComponent(url.protocol + '//' + url.host + '/sub?target=mixed&token=' + 订阅TOKEN + (url.searchParams.has('sub') && url.searchParams.get('sub') != '' ? `&sub=${url.searchParams.get('sub')}` : ''))}&config=${encodeURIComponent(config_JSON.订阅转换配置.SUBCONFIG)}&emoji=${config_JSON.订阅转换配置.SUBEMOJI}&scv=${config_JSON.跳过证书验证}`;
+@@ -1747,7 +1738,7 @@
+<span style="color:#9ca3af"> }
+<span style="color:#9ca3af"> 
+<span style="color:#9ca3af"> async function 获取优选订阅生成器数据(优选订阅生成器HOST) {
+<span style="color:#ef4444">-    let 优选IP = [], 其他节点LINK = '', 格式化HOST = 优选订阅生成器HOST.replace(/^sub:\/\//i, 'https://').split('#')[0].split('?')[0];
+<span style="color:#22c55e">+    let 优选IP = [], 其他节点LINK = '', 格式化HOST = 优选订阅生成器HOST.replace(/^sub:\/\//i, 'https://').split('#')[0];
+<span style="color:#9ca3af">     if (!/^https?:\/\//i.test(格式化HOST)) 格式化HOST = `https://${格式化HOST}`;
+<span style="color:#9ca3af"> 
+<span style="color:#9ca3af">     try {
+@@ -1798,32 +1789,28 @@
+<span style="color:#9ca3af"> }
+<span style="color:#9ca3af"> 
+<span style="color:#9ca3af"> async function 请求优选API(urls, 默认端口 = '443', 超时时间 = 3000) {
+<span style="color:#ef4444">-    if (!urls?.length) return [[], [], [], []];
+<span style="color:#ef4444">-    const results = new Set(), 反代IP池 = new Set();
+<span style="color:#22c55e">+    if (!urls?.length) return [[], [], []];
+<span style="color:#22c55e">+    const results = new Set();
+<span style="color:#9ca3af">     let 订阅链接响应的明文LINK内容 = '', 需要订阅转换订阅URLs = [];
+<span style="color:#9ca3af">     await Promise.allSettled(urls.map(async (url) => {
+<span style="color:#9ca3af">         // 检查URL是否包含备注名
+<span style="color:#9ca3af">         const hashIndex = url.indexOf('#');
+<span style="color:#9ca3af">         const urlWithoutHash = hashIndex > -1 ? url.substring(0, hashIndex) : url;
+<span style="color:#9ca3af">         const API备注名 = hashIndex > -1 ? decodeURIComponent(url.substring(hashIndex + 1)) : null;
+<span style="color:#ef4444">-        const 优选IP作为反代IP = url.toLowerCase().includes('proxyip=true');
+<span style="color:#22c55e">+        
+<span style="color:#9ca3af">         if (urlWithoutHash.toLowerCase().startsWith('sub://')) {
+<span style="color:#9ca3af">             try {
+<span style="color:#9ca3af">                 const [优选IP, 其他节点LINK] = await 获取优选订阅生成器数据(urlWithoutHash);
+<span style="color:#9ca3af">                 // 处理第一个数组 - 优选IP
+<span style="color:#9ca3af">                 if (API备注名) {
+<span style="color:#9ca3af">                     for (const ip of 优选IP) {
+<span style="color:#ef4444">-                        const 处理后IP = ip.includes('#')
+<span style="color:#ef4444">-                            ? `${ip} [${API备注名}]`
+<span style="color:#22c55e">+                        const 处理后IP = ip.includes('#') 
+<span style="color:#22c55e">+                            ? `${ip} [${API备注名}]` 
+<span style="color:#9ca3af">                             : `${ip}#[${API备注名}]`;
+<span style="color:#9ca3af">                         results.add(处理后IP);
+<span style="color:#ef4444">-                        if (优选IP作为反代IP) 反代IP池.add(ip.split('#')[0]);
+<span style="color:#9ca3af">                     }
+<span style="color:#9ca3af">                 } else {
+<span style="color:#ef4444">-                    for (const ip of 优选IP) {
+<span style="color:#ef4444">-                        results.add(ip);
+<span style="color:#ef4444">-                        if (优选IP作为反代IP) 反代IP池.add(ip.split('#')[0]);
+<span style="color:#ef4444">-                    }
+<span style="color:#22c55e">+                    for (const ip of 优选IP) results.add(ip);
+<span style="color:#9ca3af">                 }
+<span style="color:#9ca3af">                 // 处理第二个数组 - 其他节点LINK
+<span style="color:#9ca3af">                 if (其他节点LINK && typeof 其他节点LINK === 'string' && API备注名) {
+@@ -1936,14 +1923,13 @@
+<span style="color:#9ca3af">                     const ipItem = hasPort ? line : `${hostPart}:${port}${remark}`;
+<span style="color:#9ca3af">                     // 处理第一个数组 - 优选IP
+<span style="color:#9ca3af">                     if (API备注名) {
+<span style="color:#ef4444">-                        const 处理后IP = ipItem.includes('#')
+<span style="color:#ef4444">-                            ? `${ipItem} [${API备注名}]`
+<span style="color:#22c55e">+                        const 处理后IP = ipItem.includes('#') 
+<span style="color:#22c55e">+                            ? `${ipItem} [${API备注名}]` 
+<span style="color:#9ca3af">                             : `${ipItem}#[${API备注名}]`;
+<span style="color:#9ca3af">                         results.add(处理后IP);
+<span style="color:#9ca3af">                     } else {
+<span style="color:#9ca3af">                         results.add(ipItem);
+<span style="color:#9ca3af">                     }
+<span style="color:#ef4444">-                    if (优选IP作为反代IP) 反代IP池.add(ipItem.split('#')[0]);
+<span style="color:#9ca3af">                 });
+<span style="color:#9ca3af">             } else {
+<span style="color:#9ca3af">                 const headers = lines[0].split(',').map(h => h.trim());
+@@ -1965,7 +1951,6 @@
+<span style="color:#9ca3af">                         } else {
+<span style="color:#9ca3af">                             results.add(ipItem);
+<span style="color:#9ca3af">                         }
+<span style="color:#ef4444">-                        if (优选IP作为反代IP) 反代IP池.add(`${wrappedIP}:${cols[portIdx]}`);
+<span style="color:#9ca3af">                     });
+<span style="color:#9ca3af">                 } else if (headers.some(h => h.includes('IP')) && headers.some(h => h.includes('延迟')) && headers.some(h => h.includes('下载速度'))) {
+<span style="color:#9ca3af">                     const ipIdx = headers.findIndex(h => h.includes('IP'));
+@@ -1983,7 +1968,6 @@
+<span style="color:#9ca3af">                         } else {
+<span style="color:#9ca3af">                             results.add(ipItem);
+<span style="color:#9ca3af">                         }
+<span style="color:#ef4444">-                        if (优选IP作为反代IP) 反代IP池.add(`${wrappedIP}:${port}`);
+<span style="color:#9ca3af">                     });
+<span style="color:#9ca3af">                 }
+<span style="color:#9ca3af">             }
+@@ -1991,7 +1975,7 @@
+<span style="color:#9ca3af">     }));
+<span style="color:#9ca3af">     // 将LINK内容转换为数组并去重
+<span style="color:#9ca3af">     const LINK数组 = 订阅链接响应的明文LINK内容.trim() ? [...new Set(订阅链接响应的明文LINK内容.split(/\r?\n/).filter(line => line.trim() !== ''))] : [];
+<span style="color:#ef4444">-    return [Array.from(results), LINK数组, 需要订阅转换订阅URLs, Array.from(反代IP池)];
+<span style="color:#22c55e">+    return [Array.from(results), LINK数组, 需要订阅转换订阅URLs];
+<span style="color:#9ca3af"> }
+<span style="color:#9ca3af"> 
+<span style="color:#9ca3af"> async function 反代参数获取(request) {
 </pre></body></html>
