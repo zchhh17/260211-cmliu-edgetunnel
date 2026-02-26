@@ -1,83 +1,66 @@
 <!doctype html>
-<html><head><meta charset='utf-8'><title>main Diff</title>
-<style>
-body{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0b1220;color:#e5e7eb;padding:16px}
-a{color:#60a5fa;text-decoration:none}
-pre{white-space:pre-wrap;line-height:1.45}
-.btn{display:inline-block;background:#1f2933;padding:6px 12px;border-radius:8px;margin-bottom:12px}
-</style></head><body>
-<a class='btn' href='./dashboard.html'>⬅ 返回 Dashboard</a>
-<h1>main Diff</h1>
+<html><head><meta charset='utf-8'><title>Main Diff</title>
+<style>body{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0b1220;color:#e5e7eb;padding:16px}a{color:#60a5fa}pre{white-space:pre-wrap;line-height:1.45}</style>
+</head><body>
+<h1>Main Diff</h1>
+<a href='./dashboard.html'>⬅ 返回 Dashboard</a>
 <pre>
 diff -ruN src/.git/config dst/.git/config
-<span style="color:#ef4444">--- src/.git/config	2026-02-25 21:31:05.207345803 +0000
-<span style="color:#22c55e">+++ dst/.git/config	2026-02-25 21:31:05.478888240 +0000
-@@ -4,14 +4,17 @@
+<span style="color:#ef4444">--- src/.git/config	2026-02-26 01:58:17.976502747 +0000
+<span style="color:#22c55e">+++ dst/.git/config	2026-02-26 01:58:20.654326218 +0000
+@@ -4,8 +4,11 @@
 <span style="color:#9ca3af"> 	bare = false
 <span style="color:#9ca3af"> 	logallrefupdates = true
 <span style="color:#9ca3af"> [remote "origin"]
 <span style="color:#ef4444">-	url = https://github.com/cmliu/edgetunnel.git
 <span style="color:#22c55e">+	url = https://github.com/zchhh17/260211-cmliu-edgetunnel.git
 <span style="color:#9ca3af"> 	fetch = +refs/heads/*:refs/remotes/origin/*
-<span style="color:#ef4444">-[branch "main"]
 <span style="color:#22c55e">+[branch "infra"]
-<span style="color:#9ca3af"> 	remote = origin
-<span style="color:#ef4444">-	merge = refs/heads/main
-<span style="color:#22c55e">+	merge = refs/heads/infra
-<span style="color:#9ca3af"> [branch "1.0"]
-<span style="color:#9ca3af"> 	remote = origin
-<span style="color:#9ca3af"> 	merge = refs/heads/1.0
-<span style="color:#9ca3af"> [branch "beta2.0"]
-<span style="color:#9ca3af"> 	remote = origin
-<span style="color:#9ca3af"> 	merge = refs/heads/beta2.0
-<span style="color:#22c55e">+[branch "main"]
 <span style="color:#22c55e">+	remote = origin
-<span style="color:#22c55e">+	merge = refs/heads/main
+<span style="color:#22c55e">+	merge = refs/heads/infra
+<span style="color:#9ca3af"> [branch "main"]
+<span style="color:#9ca3af"> 	remote = origin
+<span style="color:#9ca3af"> 	merge = refs/heads/main
 Binary files src/.git/index and dst/.git/index differ
 diff -ruN src/.git/logs/HEAD dst/.git/logs/HEAD
-<span style="color:#ef4444">--- src/.git/logs/HEAD	2026-02-25 21:31:05.473828085 +0000
-<span style="color:#22c55e">+++ dst/.git/logs/HEAD	2026-02-25 21:31:05.479321239 +0000
-@@ -1,5 +1,5 @@
-<span style="color:#ef4444">-0000000000000000000000000000000000000000 f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.4n51afomptxufco1pqravcjt4g.yx.internal.cloudapp.net> 1772055061 +0000	clone: from https://github.com/cmliu/edgetunnel.git
-<span style="color:#ef4444">-f36359303d4d7b1b462faaf1f9674114fbd1d5bc 8292713f2ad7242c3ed6c893e7a772b7d8eaee48 runner <runner@runnervmnay03.4n51afomptxufco1pqravcjt4g.yx.internal.cloudapp.net> 1772055064 +0000	checkout: moving from main to 1.0
-<span style="color:#ef4444">-8292713f2ad7242c3ed6c893e7a772b7d8eaee48 f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.4n51afomptxufco1pqravcjt4g.yx.internal.cloudapp.net> 1772055064 +0000	checkout: moving from 1.0 to origin
-<span style="color:#ef4444">-f36359303d4d7b1b462faaf1f9674114fbd1d5bc 01911939a78a7a0cf717fbec4cf59da5db9d55f7 runner <runner@runnervmnay03.4n51afomptxufco1pqravcjt4g.yx.internal.cloudapp.net> 1772055065 +0000	checkout: moving from f36359303d4d7b1b462faaf1f9674114fbd1d5bc to beta2.0
-<span style="color:#22c55e">+0000000000000000000000000000000000000000 feb1adb535530a98529c857105bfdb4bd6c93243 runner <runner@runnervmnay03.4n51afomptxufco1pqravcjt4g.yx.internal.cloudapp.net> 1772055064 +0000	clone: from https://github.com/zchhh17/260211-cmliu-edgetunnel.git
-<span style="color:#22c55e">+feb1adb535530a98529c857105bfdb4bd6c93243 8292713f2ad7242c3ed6c893e7a772b7d8eaee48 runner <runner@runnervmnay03.4n51afomptxufco1pqravcjt4g.yx.internal.cloudapp.net> 1772055064 +0000	checkout: moving from infra to 1.0
-<span style="color:#22c55e">+8292713f2ad7242c3ed6c893e7a772b7d8eaee48 feb1adb535530a98529c857105bfdb4bd6c93243 runner <runner@runnervmnay03.4n51afomptxufco1pqravcjt4g.yx.internal.cloudapp.net> 1772055065 +0000	checkout: moving from 1.0 to origin
-<span style="color:#22c55e">+feb1adb535530a98529c857105bfdb4bd6c93243 01911939a78a7a0cf717fbec4cf59da5db9d55f7 runner <runner@runnervmnay03.4n51afomptxufco1pqravcjt4g.yx.internal.cloudapp.net> 1772055065 +0000	checkout: moving from feb1adb535530a98529c857105bfdb4bd6c93243 to beta2.0
-<span style="color:#9ca3af"> 01911939a78a7a0cf717fbec4cf59da5db9d55f7 f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.4n51afomptxufco1pqravcjt4g.yx.internal.cloudapp.net> 1772055065 +0000	checkout: moving from beta2.0 to main
+<span style="color:#ef4444">--- src/.git/logs/HEAD	2026-02-26 01:58:20.394970042 +0000
+<span style="color:#22c55e">+++ dst/.git/logs/HEAD	2026-02-26 01:58:20.655200319 +0000
+@@ -1,2 +1,2 @@
+<span style="color:#ef4444">-0000000000000000000000000000000000000000 f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.hpp4ryfwmmzepdm2on1453n2fb.cx.internal.cloudapp.net> 1772071097 +0000	clone: from https://github.com/cmliu/edgetunnel.git
+<span style="color:#ef4444">-f36359303d4d7b1b462faaf1f9674114fbd1d5bc f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.hpp4ryfwmmzepdm2on1453n2fb.cx.internal.cloudapp.net> 1772071100 +0000	checkout: moving from main to main
+<span style="color:#22c55e">+0000000000000000000000000000000000000000 018799535976ef96f12ac0e5a3950bf7429f4dac runner <runner@runnervmnay03.hpp4ryfwmmzepdm2on1453n2fb.cx.internal.cloudapp.net> 1772071100 +0000	clone: from https://github.com/zchhh17/260211-cmliu-edgetunnel.git
+<span style="color:#22c55e">+018799535976ef96f12ac0e5a3950bf7429f4dac f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.hpp4ryfwmmzepdm2on1453n2fb.cx.internal.cloudapp.net> 1772071100 +0000	checkout: moving from infra to main
 diff -ruN src/.git/logs/refs/heads/infra dst/.git/logs/refs/heads/infra
 <span style="color:#ef4444">--- src/.git/logs/refs/heads/infra	1970-01-01 00:00:00.000000000 +0000
-<span style="color:#22c55e">+++ dst/.git/logs/refs/heads/infra	2026-02-25 21:31:04.475569742 +0000
+<span style="color:#22c55e">+++ dst/.git/logs/refs/heads/infra	2026-02-26 01:58:20.177543191 +0000
 @@ -0,0 +1 @@
-<span style="color:#22c55e">+0000000000000000000000000000000000000000 feb1adb535530a98529c857105bfdb4bd6c93243 runner <runner@runnervmnay03.4n51afomptxufco1pqravcjt4g.yx.internal.cloudapp.net> 1772055064 +0000	clone: from https://github.com/zchhh17/260211-cmliu-edgetunnel.git
+<span style="color:#22c55e">+0000000000000000000000000000000000000000 018799535976ef96f12ac0e5a3950bf7429f4dac runner <runner@runnervmnay03.hpp4ryfwmmzepdm2on1453n2fb.cx.internal.cloudapp.net> 1772071100 +0000	clone: from https://github.com/zchhh17/260211-cmliu-edgetunnel.git
 diff -ruN src/.git/logs/refs/heads/main dst/.git/logs/refs/heads/main
-<span style="color:#ef4444">--- src/.git/logs/refs/heads/main	2026-02-25 21:31:01.406677968 +0000
-<span style="color:#22c55e">+++ dst/.git/logs/refs/heads/main	2026-02-25 21:31:05.478456012 +0000
+<span style="color:#ef4444">--- src/.git/logs/refs/heads/main	2026-02-26 01:58:17.976139809 +0000
+<span style="color:#22c55e">+++ dst/.git/logs/refs/heads/main	2026-02-26 01:58:20.654326218 +0000
 @@ -1 +1 @@
-<span style="color:#ef4444">-0000000000000000000000000000000000000000 f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.4n51afomptxufco1pqravcjt4g.yx.internal.cloudapp.net> 1772055061 +0000	clone: from https://github.com/cmliu/edgetunnel.git
-<span style="color:#22c55e">+0000000000000000000000000000000000000000 f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.4n51afomptxufco1pqravcjt4g.yx.internal.cloudapp.net> 1772055065 +0000	branch: Created from refs/remotes/origin/main
+<span style="color:#ef4444">-0000000000000000000000000000000000000000 f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.hpp4ryfwmmzepdm2on1453n2fb.cx.internal.cloudapp.net> 1772071097 +0000	clone: from https://github.com/cmliu/edgetunnel.git
+<span style="color:#22c55e">+0000000000000000000000000000000000000000 f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.hpp4ryfwmmzepdm2on1453n2fb.cx.internal.cloudapp.net> 1772071100 +0000	branch: Created from refs/remotes/origin/main
 diff -ruN src/.git/logs/refs/remotes/origin/HEAD dst/.git/logs/refs/remotes/origin/HEAD
-<span style="color:#ef4444">--- src/.git/logs/refs/remotes/origin/HEAD	2026-02-25 21:31:01.406084719 +0000
-<span style="color:#22c55e">+++ dst/.git/logs/refs/remotes/origin/HEAD	2026-02-25 21:31:04.474960413 +0000
+<span style="color:#ef4444">--- src/.git/logs/refs/remotes/origin/HEAD	2026-02-26 01:58:17.975532335 +0000
+<span style="color:#22c55e">+++ dst/.git/logs/refs/remotes/origin/HEAD	2026-02-26 01:58:20.176926739 +0000
 @@ -1 +1 @@
-<span style="color:#ef4444">-0000000000000000000000000000000000000000 f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.4n51afomptxufco1pqravcjt4g.yx.internal.cloudapp.net> 1772055061 +0000	clone: from https://github.com/cmliu/edgetunnel.git
-<span style="color:#22c55e">+0000000000000000000000000000000000000000 feb1adb535530a98529c857105bfdb4bd6c93243 runner <runner@runnervmnay03.4n51afomptxufco1pqravcjt4g.yx.internal.cloudapp.net> 1772055064 +0000	clone: from https://github.com/zchhh17/260211-cmliu-edgetunnel.git
+<span style="color:#ef4444">-0000000000000000000000000000000000000000 f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.hpp4ryfwmmzepdm2on1453n2fb.cx.internal.cloudapp.net> 1772071097 +0000	clone: from https://github.com/cmliu/edgetunnel.git
+<span style="color:#22c55e">+0000000000000000000000000000000000000000 018799535976ef96f12ac0e5a3950bf7429f4dac runner <runner@runnervmnay03.hpp4ryfwmmzepdm2on1453n2fb.cx.internal.cloudapp.net> 1772071100 +0000	clone: from https://github.com/zchhh17/260211-cmliu-edgetunnel.git
+Binary files src/.git/objects/pack/pack-5e259592461418e34812ab6914ee599793adf1d7.idx and dst/.git/objects/pack/pack-5e259592461418e34812ab6914ee599793adf1d7.idx differ
+Binary files src/.git/objects/pack/pack-5e259592461418e34812ab6914ee599793adf1d7.pack and dst/.git/objects/pack/pack-5e259592461418e34812ab6914ee599793adf1d7.pack differ
+Binary files src/.git/objects/pack/pack-5e259592461418e34812ab6914ee599793adf1d7.rev and dst/.git/objects/pack/pack-5e259592461418e34812ab6914ee599793adf1d7.rev differ
 Binary files src/.git/objects/pack/pack-cc9c9a91cc03ef35ca6b5f0a2f734fd275788013.idx and dst/.git/objects/pack/pack-cc9c9a91cc03ef35ca6b5f0a2f734fd275788013.idx differ
 Binary files src/.git/objects/pack/pack-cc9c9a91cc03ef35ca6b5f0a2f734fd275788013.pack and dst/.git/objects/pack/pack-cc9c9a91cc03ef35ca6b5f0a2f734fd275788013.pack differ
 Binary files src/.git/objects/pack/pack-cc9c9a91cc03ef35ca6b5f0a2f734fd275788013.rev and dst/.git/objects/pack/pack-cc9c9a91cc03ef35ca6b5f0a2f734fd275788013.rev differ
-Binary files src/.git/objects/pack/pack-e40f308312e90c554066c99619f2adc1d8735070.idx and dst/.git/objects/pack/pack-e40f308312e90c554066c99619f2adc1d8735070.idx differ
-Binary files src/.git/objects/pack/pack-e40f308312e90c554066c99619f2adc1d8735070.pack and dst/.git/objects/pack/pack-e40f308312e90c554066c99619f2adc1d8735070.pack differ
-Binary files src/.git/objects/pack/pack-e40f308312e90c554066c99619f2adc1d8735070.rev and dst/.git/objects/pack/pack-e40f308312e90c554066c99619f2adc1d8735070.rev differ
 diff -ruN src/.git/packed-refs dst/.git/packed-refs
-<span style="color:#ef4444">--- src/.git/packed-refs	2026-02-25 21:31:01.405904623 +0000
-<span style="color:#22c55e">+++ dst/.git/packed-refs	2026-02-25 21:31:04.474230373 +0000
+<span style="color:#ef4444">--- src/.git/packed-refs	2026-02-26 01:58:17.975341569 +0000
+<span style="color:#22c55e">+++ dst/.git/packed-refs	2026-02-26 01:58:20.176747235 +0000
 @@ -1,4 +1,9 @@
 <span style="color:#9ca3af"> # pack-refs with: peeled fully-peeled sorted 
 <span style="color:#9ca3af"> 8292713f2ad7242c3ed6c893e7a772b7d8eaee48 refs/remotes/origin/1.0
 <span style="color:#9ca3af"> 01911939a78a7a0cf717fbec4cf59da5db9d55f7 refs/remotes/origin/beta2.0
-<span style="color:#22c55e">+feb1adb535530a98529c857105bfdb4bd6c93243 refs/remotes/origin/infra
+<span style="color:#22c55e">+018799535976ef96f12ac0e5a3950bf7429f4dac refs/remotes/origin/infra
 <span style="color:#9ca3af"> f36359303d4d7b1b462faaf1f9674114fbd1d5bc refs/remotes/origin/main
 <span style="color:#22c55e">+c11323ef3efb228faa79dd20de3735a7e9d9d2ea refs/tags/mirror-1770878121-cmliu-edgetunnel
 <span style="color:#22c55e">+41c2872847161d93d4588654529338f10cdb6b03 refs/tags/mirror-1770967166-cmliu-edgetunnel
@@ -85,12 +68,12 @@ diff -ruN src/.git/packed-refs dst/.git/packed-refs
 <span style="color:#22c55e">+f54e1fcd01985fadb307efa6dd460a4818811b09 refs/tags/mirror-5
 diff -ruN src/.git/refs/heads/infra dst/.git/refs/heads/infra
 <span style="color:#ef4444">--- src/.git/refs/heads/infra	1970-01-01 00:00:00.000000000 +0000
-<span style="color:#22c55e">+++ dst/.git/refs/heads/infra	2026-02-25 21:31:04.475569742 +0000
+<span style="color:#22c55e">+++ dst/.git/refs/heads/infra	2026-02-26 01:58:20.177543191 +0000
 @@ -0,0 +1 @@
-<span style="color:#22c55e">+feb1adb535530a98529c857105bfdb4bd6c93243
+<span style="color:#22c55e">+018799535976ef96f12ac0e5a3950bf7429f4dac
 diff -ruN src/.git/refs/remotes/origin/HEAD dst/.git/refs/remotes/origin/HEAD
-<span style="color:#ef4444">--- src/.git/refs/remotes/origin/HEAD	2026-02-25 21:31:01.406084719 +0000
-<span style="color:#22c55e">+++ dst/.git/refs/remotes/origin/HEAD	2026-02-25 21:31:04.474960413 +0000
+<span style="color:#ef4444">--- src/.git/refs/remotes/origin/HEAD	2026-02-26 01:58:17.975532335 +0000
+<span style="color:#22c55e">+++ dst/.git/refs/remotes/origin/HEAD	2026-02-26 01:58:20.176926739 +0000
 @@ -1 +1 @@
 <span style="color:#ef4444">-ref: refs/remotes/origin/main
 <span style="color:#22c55e">+ref: refs/remotes/origin/infra
