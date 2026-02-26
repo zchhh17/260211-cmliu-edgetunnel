@@ -3,7 +3,7 @@ name: Mirror Diff Pages (All Branches)
 on:
   workflow_dispatch:
   #schedule:
-    #- cron: "0 */6 * * *"
+  #  - cron: "0 */6 * * *"
 
 jobs:
   diff:
@@ -31,11 +31,14 @@ jobs:
           git clone https://github.com/cmliu/edgetunnel.git "$ROOT/tmp/src"
           git clone https://github.com/${{ github.repository }}.git "$ROOT/tmp/dst"
 
+          cd "$ROOT/tmp/dst"
+          git fetch --all
+
           cd "$ROOT/tmp/src"
           branches=$(
-           git for-each-ref --format='%(refname:short)' refs/remotes/origin \
-           | sed 's|origin/||' \
-           | grep -Ev '^(HEAD|origin|infra)$'
+            git for-each-ref --format='%(refname:short)' refs/remotes/origin \
+            | sed 's|origin/||' \
+            | grep -Ev '^(HEAD|origin|infra)$'
           )
 
           for br in $branches; do
@@ -45,11 +48,10 @@ jobs:
             git checkout "$br" || continue
 
             cd "$ROOT/tmp/dst"
-            git fetch origin "$br" || true
             git checkout -B "$br" "origin/$br" || continue
 
             cd "$ROOT/tmp"
-            diff -ruN src dst > "$ROOT/diff.patch" || true
+            diff -ruN --exclude=.git src dst > "$ROOT/diff.patch" || true
 
             out="$ROOT/public/diff-cmliu-edgetunnel-$br.html"
 
@@ -65,9 +67,9 @@ jobs:
               echo "<a class='btn' href='./dashboard.html'>⬅ 返回 Dashboard</a>"
               echo "<h1>$br Diff</h1>"
               echo "<pre>"
-              sed -e 's/^+/<span style="color:#22c55e">+/' \
-                  -e 's/^-/<span style="color:#ef4444">-/' \
-                  -e 's/^ /<span style="color:#9ca3af"> /' "$ROOT/diff.patch"
+              sed -e 's/^+/<span style="color:#22c55e">+<\/span>/' \
+                  -e 's/^-/<span style="color:#ef4444">-<\/span>/' \
+                  -e 's/^ /<span style="color:#9ca3af"> <\/span>/' "$ROOT/diff.patch"
               echo "</pre></body></html>"
             } > "$out"
 
