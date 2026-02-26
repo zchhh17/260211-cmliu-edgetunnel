@@ -1,0 +1,43 @@
+# (2602270707)作用：
+# 每次 Actions 生成 public/dashboard.html 后，
+# 自动复制到仓库根目录，避免你再点错 URL。
+
+name: Sync Dashboard to Root
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - Mirror Diff Pages (All Branches)
+    types:
+      - completed
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: infra
+
+      - name: Copy public pages to root
+        run: |
+          set -Eeuo pipefail
+
+          cp -f public/dashboard.html dashboard.html || true
+          cp -f public/history.html history.html || true
+          cp -f public/trend.html trend.html || true
+
+          cp -f public/diff-*.html ./ || true
+
+      - name: Commit synced pages
+        run: |
+          git config user.name "mirror-bot"
+          git config user.email "mirror-bot@users.noreply.github.com"
+
+          git add dashboard.html history.html trend.html diff-*.html || true
+          git commit -m "chore: sync public pages to root for GitHub Pages" || echo "No changes"
+          git push origin infra
