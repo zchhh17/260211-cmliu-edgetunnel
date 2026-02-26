@@ -1,0 +1,102 @@
+# ✔ 输出在 public/dashboard.html
+# ✔ 后续由我们刚才的 Sync Workflow 同步到根目录
+# ✔ 支持 main / beta2.0 / 1.0
+# ✔ 自带搜索 + 卡片 + 状态徽章
+
+name: Mirror Dashboard Pro 2602270724
+
+on:
+  workflow_dispatch:
+
+jobs:
+  dashboard:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: infra
+
+      - name: Build Pro Dashboard
+        run: |
+          set -Eeuo pipefail
+
+          mkdir -p public
+
+          NOW="$(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+
+          cat > public/dashboard.html <<'EOF'
+          <!doctype html>
+          <html lang="zh">
+          <head>
+            <meta charset="utf-8" />
+            <title>📊 Mirror Dashboard</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <style>
+              body{font-family:system-ui,-apple-system,Segoe UI,Roboto;background:#0b1220;color:#e5e7eb;margin:0;padding:20px}
+              h1{margin:0 0 12px}
+              .top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+              .meta{opacity:.75}
+              .search{padding:10px 12px;border-radius:10px;border:none;outline:none;width:260px;background:#111827;color:#e5e7eb}
+              .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:16px}
+              .card{background:#0f172a;border:1px solid #1f2937;border-radius:14px;padding:14px}
+              .repo{font-weight:700;font-size:18px}
+              .badges{margin:8px 0;display:flex;gap:8px;flex-wrap:wrap}
+              .badge{font-size:12px;padding:4px 10px;border-radius:999px}
+              .ok{background:#052e16;color:#22c55e}
+              .skip{background:#1f2937;color:#9ca3af}
+              .fail{background:#3f1d1d;color:#ef4444}
+              .links a{display:inline-block;margin-right:10px;color:#60a5fa;text-decoration:none}
+              .links a:hover{text-decoration:underline}
+            </style>
+          </head>
+          <body>
+            <div class="top">
+              <div>
+                <h1>📊 Mirror Dashboard</h1>
+                <div class="meta">Last update: '"$NOW"'</div>
+              </div>
+              <input id="q" class="search" placeholder="🔍 搜索仓库 / 分支…" />
+            </div>
+
+            <div class="grid" id="cards">
+
+              <div class="card" data-name="cmliu/edgetunnel">
+                <div class="repo">cmliu/edgetunnel</div>
+                <div class="badges">
+                  <span class="badge ok">Updated</span>
+                </div>
+                <div class="links">
+                  <a href="./diff-cmliu-edgetunnel-main.html" target="_blank">Main Diff</a>
+                  <a href="./diff-cmliu-edgetunnel-beta2.0.html" target="_blank">Beta2.0 Diff</a>
+                  <a href="./diff-cmliu-edgetunnel-1.0.html" target="_blank">1.0 Diff</a>
+                  <a href="./history.html" target="_blank">History</a>
+                  <a href="./trend.html" target="_blank">Trend</a>
+                </div>
+              </div>
+
+            </div>
+
+            <script>
+              const q = document.getElementById('q');
+              const cards = document.querySelectorAll('.card');
+              q.addEventListener('input', e => {
+                const v = e.target.value.toLowerCase();
+                cards.forEach(c => {
+                  c.style.display = c.dataset.name.toLowerCase().includes(v) ? '' : 'none';
+                });
+              });
+            </script>
+          </body>
+          </html>
+          EOF
+
+      - name: Commit dashboard
+        run: |
+          git config user.name "mirror-bot"
+          git config user.email "mirror-bot@users.noreply.github.com"
+          git add public/dashboard.html
+          git commit -m "feat: upgrade dashboard to pro version" || echo "No changes"
+          git push origin infra
