@@ -1,170 +1,245 @@
 <!doctype html>
-<html><head><meta charset='utf-8'><title>main Diff</title>
-<style>
-body{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0b1220;color:#e5e7eb;padding:16px}
-a{color:#60a5fa;text-decoration:none}
-pre{white-space:pre-wrap;line-height:1.45}
-.btn{display:inline-block;background:#1f2933;padding:6px 12px;border-radius:8px;margin-bottom:12px}
-</style></head><body>
-<a class='btn' href='./dashboard.html'>⬅ 返回 Dashboard</a>
-<h1>main Diff</h1>
+<html><head><meta charset='utf-8'><title>Main Diff</title>
+<style>body{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0b1220;color:#e5e7eb;padding:16px}a{color:#60a5fa}pre{white-space:pre-wrap;line-height:1.45}</style>
+</head><body>
+<h1>Main Diff</h1>
+<a href='./dashboard.html'>⬅ 返回 Dashboard</a>
 <pre>
-diff -ruN '--exclude=.git' src/README.md dst/README.md
-<span style="color:#ef4444">-</span>-- src/README.md	2026-02-26 13:39:30.400853796 +0000
-<span style="color:#22c55e">+</span>++ dst/README.md	2026-02-26 13:39:30.423854176 +0000
+diff -ruN src/.git/config dst/.git/config
+<span style="color:#ef4444">--- src/.git/config	2026-02-26 18:51:45.693917358 +0000
+<span style="color:#22c55e">+++ dst/.git/config	2026-02-26 18:51:48.825529408 +0000
+@@ -4,8 +4,11 @@
+<span style="color:#9ca3af"> 	bare = false
+<span style="color:#9ca3af"> 	logallrefupdates = true
+<span style="color:#9ca3af"> [remote "origin"]
+<span style="color:#ef4444">-	url = https://github.com/cmliu/edgetunnel.git
+<span style="color:#22c55e">+	url = https://github.com/zchhh17/260211-cmliu-edgetunnel.git
+<span style="color:#9ca3af"> 	fetch = +refs/heads/*:refs/remotes/origin/*
+<span style="color:#22c55e">+[branch "infra"]
+<span style="color:#22c55e">+	remote = origin
+<span style="color:#22c55e">+	merge = refs/heads/infra
+<span style="color:#9ca3af"> [branch "main"]
+<span style="color:#9ca3af"> 	remote = origin
+<span style="color:#9ca3af"> 	merge = refs/heads/main
+Binary files src/.git/index and dst/.git/index differ
+diff -ruN src/.git/logs/HEAD dst/.git/logs/HEAD
+<span style="color:#ef4444">--- src/.git/logs/HEAD	2026-02-26 18:51:48.560913540 +0000
+<span style="color:#22c55e">+++ dst/.git/logs/HEAD	2026-02-26 18:51:48.826025726 +0000
+@@ -1,2 +1,2 @@
+<span style="color:#ef4444">-0000000000000000000000000000000000000000 029e526a491e83942613e6868a4fa9be003739a0 runner <runner@runnervmnay03.rywhqcrlkd4ezk2vvgcugcxtjg.cx.internal.cloudapp.net> 1772131905 +0000	clone: from https://github.com/cmliu/edgetunnel.git
+<span style="color:#ef4444">-029e526a491e83942613e6868a4fa9be003739a0 029e526a491e83942613e6868a4fa9be003739a0 runner <runner@runnervmnay03.rywhqcrlkd4ezk2vvgcugcxtjg.cx.internal.cloudapp.net> 1772131908 +0000	checkout: moving from main to main
+<span style="color:#22c55e">+0000000000000000000000000000000000000000 0a781364efd3e0285d4d78a7f3d196af19514279 runner <runner@runnervmnay03.rywhqcrlkd4ezk2vvgcugcxtjg.cx.internal.cloudapp.net> 1772131908 +0000	clone: from https://github.com/zchhh17/260211-cmliu-edgetunnel.git
+<span style="color:#22c55e">+0a781364efd3e0285d4d78a7f3d196af19514279 f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.rywhqcrlkd4ezk2vvgcugcxtjg.cx.internal.cloudapp.net> 1772131908 +0000	checkout: moving from infra to main
+diff -ruN src/.git/logs/refs/heads/infra dst/.git/logs/refs/heads/infra
+<span style="color:#ef4444">--- src/.git/logs/refs/heads/infra	1970-01-01 00:00:00.000000000 +0000
+<span style="color:#22c55e">+++ dst/.git/logs/refs/heads/infra	2026-02-26 18:51:48.325672489 +0000
+@@ -0,0 +1 @@
+<span style="color:#22c55e">+0000000000000000000000000000000000000000 0a781364efd3e0285d4d78a7f3d196af19514279 runner <runner@runnervmnay03.rywhqcrlkd4ezk2vvgcugcxtjg.cx.internal.cloudapp.net> 1772131908 +0000	clone: from https://github.com/zchhh17/260211-cmliu-edgetunnel.git
+diff -ruN src/.git/logs/refs/heads/main dst/.git/logs/refs/heads/main
+<span style="color:#ef4444">--- src/.git/logs/refs/heads/main	2026-02-26 18:51:45.693568422 +0000
+<span style="color:#22c55e">+++ dst/.git/logs/refs/heads/main	2026-02-26 18:51:48.824962743 +0000
+@@ -1 +1 @@
+<span style="color:#ef4444">-0000000000000000000000000000000000000000 029e526a491e83942613e6868a4fa9be003739a0 runner <runner@runnervmnay03.rywhqcrlkd4ezk2vvgcugcxtjg.cx.internal.cloudapp.net> 1772131905 +0000	clone: from https://github.com/cmliu/edgetunnel.git
+<span style="color:#22c55e">+0000000000000000000000000000000000000000 f36359303d4d7b1b462faaf1f9674114fbd1d5bc runner <runner@runnervmnay03.rywhqcrlkd4ezk2vvgcugcxtjg.cx.internal.cloudapp.net> 1772131908 +0000	branch: Created from refs/remotes/origin/main
+diff -ruN src/.git/logs/refs/remotes/origin/HEAD dst/.git/logs/refs/remotes/origin/HEAD
+<span style="color:#ef4444">--- src/.git/logs/refs/remotes/origin/HEAD	2026-02-26 18:51:45.692893145 +0000
+<span style="color:#22c55e">+++ dst/.git/logs/refs/remotes/origin/HEAD	2026-02-26 18:51:48.324971873 +0000
+@@ -1 +1 @@
+<span style="color:#ef4444">-0000000000000000000000000000000000000000 029e526a491e83942613e6868a4fa9be003739a0 runner <runner@runnervmnay03.rywhqcrlkd4ezk2vvgcugcxtjg.cx.internal.cloudapp.net> 1772131905 +0000	clone: from https://github.com/cmliu/edgetunnel.git
+<span style="color:#22c55e">+0000000000000000000000000000000000000000 0a781364efd3e0285d4d78a7f3d196af19514279 runner <runner@runnervmnay03.rywhqcrlkd4ezk2vvgcugcxtjg.cx.internal.cloudapp.net> 1772131908 +0000	clone: from https://github.com/zchhh17/260211-cmliu-edgetunnel.git
+Binary files src/.git/objects/pack/pack-0f4caebc9015b405f17bbd5424df52a4f9a28181.idx and dst/.git/objects/pack/pack-0f4caebc9015b405f17bbd5424df52a4f9a28181.idx differ
+Binary files src/.git/objects/pack/pack-0f4caebc9015b405f17bbd5424df52a4f9a28181.pack and dst/.git/objects/pack/pack-0f4caebc9015b405f17bbd5424df52a4f9a28181.pack differ
+Binary files src/.git/objects/pack/pack-0f4caebc9015b405f17bbd5424df52a4f9a28181.rev and dst/.git/objects/pack/pack-0f4caebc9015b405f17bbd5424df52a4f9a28181.rev differ
+Binary files src/.git/objects/pack/pack-38df5dfec7db87b2ecd681247ed6ef8f06ecf3a5.idx and dst/.git/objects/pack/pack-38df5dfec7db87b2ecd681247ed6ef8f06ecf3a5.idx differ
+Binary files src/.git/objects/pack/pack-38df5dfec7db87b2ecd681247ed6ef8f06ecf3a5.pack and dst/.git/objects/pack/pack-38df5dfec7db87b2ecd681247ed6ef8f06ecf3a5.pack differ
+Binary files src/.git/objects/pack/pack-38df5dfec7db87b2ecd681247ed6ef8f06ecf3a5.rev and dst/.git/objects/pack/pack-38df5dfec7db87b2ecd681247ed6ef8f06ecf3a5.rev differ
+diff -ruN src/.git/packed-refs dst/.git/packed-refs
+<span style="color:#ef4444">--- src/.git/packed-refs	2026-02-26 18:51:45.692702177 +0000
+<span style="color:#22c55e">+++ dst/.git/packed-refs	2026-02-26 18:51:48.324786564 +0000
+@@ -1,4 +1,9 @@
+<span style="color:#9ca3af"> # pack-refs with: peeled fully-peeled sorted 
+<span style="color:#9ca3af"> 8292713f2ad7242c3ed6c893e7a772b7d8eaee48 refs/remotes/origin/1.0
+<span style="color:#9ca3af"> 01911939a78a7a0cf717fbec4cf59da5db9d55f7 refs/remotes/origin/beta2.0
+<span style="color:#ef4444">-029e526a491e83942613e6868a4fa9be003739a0 refs/remotes/origin/main
+<span style="color:#22c55e">+0a781364efd3e0285d4d78a7f3d196af19514279 refs/remotes/origin/infra
+<span style="color:#22c55e">+f36359303d4d7b1b462faaf1f9674114fbd1d5bc refs/remotes/origin/main
+<span style="color:#22c55e">+c11323ef3efb228faa79dd20de3735a7e9d9d2ea refs/tags/mirror-1770878121-cmliu-edgetunnel
+<span style="color:#22c55e">+41c2872847161d93d4588654529338f10cdb6b03 refs/tags/mirror-1770967166-cmliu-edgetunnel
+<span style="color:#22c55e">+f54e1fcd01985fadb307efa6dd460a4818811b09 refs/tags/mirror-1771180835-cmliu-edgetunnel
+<span style="color:#22c55e">+f54e1fcd01985fadb307efa6dd460a4818811b09 refs/tags/mirror-5
+diff -ruN src/.git/refs/heads/infra dst/.git/refs/heads/infra
+<span style="color:#ef4444">--- src/.git/refs/heads/infra	1970-01-01 00:00:00.000000000 +0000
+<span style="color:#22c55e">+++ dst/.git/refs/heads/infra	2026-02-26 18:51:48.325672489 +0000
+@@ -0,0 +1 @@
+<span style="color:#22c55e">+0a781364efd3e0285d4d78a7f3d196af19514279
+diff -ruN src/.git/refs/heads/main dst/.git/refs/heads/main
+<span style="color:#ef4444">--- src/.git/refs/heads/main	2026-02-26 18:51:45.693568422 +0000
+<span style="color:#22c55e">+++ dst/.git/refs/heads/main	2026-02-26 18:51:48.824962743 +0000
+@@ -1 +1 @@
+<span style="color:#ef4444">-029e526a491e83942613e6868a4fa9be003739a0
+<span style="color:#22c55e">+f36359303d4d7b1b462faaf1f9674114fbd1d5bc
+diff -ruN src/.git/refs/remotes/origin/HEAD dst/.git/refs/remotes/origin/HEAD
+<span style="color:#ef4444">--- src/.git/refs/remotes/origin/HEAD	2026-02-26 18:51:45.692893145 +0000
+<span style="color:#22c55e">+++ dst/.git/refs/remotes/origin/HEAD	2026-02-26 18:51:48.324971873 +0000
+@@ -1 +1 @@
+<span style="color:#ef4444">-ref: refs/remotes/origin/main
+<span style="color:#22c55e">+ref: refs/remotes/origin/infra
+diff -ruN src/README.md dst/README.md
+<span style="color:#ef4444">--- src/README.md	2026-02-26 18:51:45.694630593 +0000
+<span style="color:#22c55e">+++ dst/README.md	2026-02-26 18:51:48.327992996 +0000
 @@ -191,7 +191,6 @@
-<span style="color:#9ca3af"> </span>- [Alexandre Kojève](https://t.me/Enkelte_notif/784)
-<span style="color:#9ca3af"> </span>- [eooce](https://github.com/eooce/Cloudflare-proxy)
-<span style="color:#9ca3af"> </span>- [Sukka](https://ip.skk.moe/)
-<span style="color:#ef4444">-</span>- [zhangtaile](https://github.com/cmliu/edgetunnel/pull/999)
-<span style="color:#9ca3af"> </span>
-<span style="color:#9ca3af"> </span>---
-<span style="color:#9ca3af"> </span>
-diff -ruN '--exclude=.git' src/_worker.js dst/_worker.js
-<span style="color:#ef4444">-</span>-- src/_worker.js	2026-02-26 13:39:30.401853812 +0000
-<span style="color:#22c55e">+</span>++ dst/_worker.js	2026-02-26 13:39:30.423854176 +0000
+<span style="color:#9ca3af"> - [Alexandre Kojève](https://t.me/Enkelte_notif/784)
+<span style="color:#9ca3af"> - [eooce](https://github.com/eooce/Cloudflare-proxy)
+<span style="color:#9ca3af"> - [Sukka](https://ip.skk.moe/)
+<span style="color:#ef4444">-- [zhangtaile](https://github.com/cmliu/edgetunnel/pull/999)
+<span style="color:#9ca3af"> 
+<span style="color:#9ca3af"> ---
+<span style="color:#9ca3af"> 
+diff -ruN src/_worker.js dst/_worker.js
+<span style="color:#ef4444">--- src/_worker.js	2026-02-26 18:51:45.694630593 +0000
+<span style="color:#22c55e">+++ dst/_worker.js	2026-02-26 18:51:48.823483984 +0000
 @@ -237,7 +237,7 @@
-<span style="color:#9ca3af"> </span>                        let 订阅内容 = '';
-<span style="color:#9ca3af"> </span>                        if (订阅类型 === 'mixed') {
-<span style="color:#9ca3af"> </span>                            const TLS分片参数 = config_JSON.TLS分片 == 'Shadowrocket' ? `&fragment=${encodeURIComponent('1,40-60,30-50,tlshello')}` : config_JSON.TLS分片 == 'Happ' ? `&fragment=${encodeURIComponent('3,1,tlshello')}` : '';
-<span style="color:#ef4444">-</span>                            let 完整优选IP = [], 其他节点LINK = '', 反代IP池 = [];
-<span style="color:#22c55e">+</span>                            let 完整优选IP = [], 其他节点LINK = '';
-<span style="color:#9ca3af"> </span>
-<span style="color:#9ca3af"> </span>                            if (!url.searchParams.has('sub') && config_JSON.优选订阅生成.local) { // 本地生成订阅
-<span style="color:#9ca3af"> </span>                                const 完整优选列表 = config_JSON.优选订阅生成.本地IP库.随机IP ? (await 生成随机IP(request, config_JSON.优选订阅生成.本地IP库.随机数量, config_JSON.优选订阅生成.本地IP库.指定端口))[0] : await env.KV.get('ADD.txt') ? await 整理成数组(await env.KV.get('ADD.txt')) : (await 生成随机IP(request, config_JSON.优选订阅生成.本地IP库.随机数量, config_JSON.优选订阅生成.本地IP库.指定端口))[0];
+<span style="color:#9ca3af">                         let 订阅内容 = '';
+<span style="color:#9ca3af">                         if (订阅类型 === 'mixed') {
+<span style="color:#9ca3af">                             const TLS分片参数 = config_JSON.TLS分片 == 'Shadowrocket' ? `&fragment=${encodeURIComponent('1,40-60,30-50,tlshello')}` : config_JSON.TLS分片 == 'Happ' ? `&fragment=${encodeURIComponent('3,1,tlshello')}` : '';
+<span style="color:#ef4444">-                            let 完整优选IP = [], 其他节点LINK = '', 反代IP池 = [];
+<span style="color:#22c55e">+                            let 完整优选IP = [], 其他节点LINK = '';
+<span style="color:#9ca3af"> 
+<span style="color:#9ca3af">                             if (!url.searchParams.has('sub') && config_JSON.优选订阅生成.local) { // 本地生成订阅
+<span style="color:#9ca3af">                                 const 完整优选列表 = config_JSON.优选订阅生成.本地IP库.随机IP ? (await 生成随机IP(request, config_JSON.优选订阅生成.本地IP库.随机数量, config_JSON.优选订阅生成.本地IP库.指定端口))[0] : await env.KV.get('ADD.txt') ? await 整理成数组(await env.KV.get('ADD.txt')) : (await 生成随机IP(request, config_JSON.优选订阅生成.本地IP库.随机数量, config_JSON.优选订阅生成.本地IP库.指定端口))[0];
 @@ -248,9 +248,7 @@
-<span style="color:#9ca3af"> </span>                                    } else {
-<span style="color:#9ca3af"> </span>                                        const subMatch = 元素.match(/sub\s*=\s*([^\s&#]+)/i);
-<span style="color:#9ca3af"> </span>                                        if (subMatch && subMatch[1].trim().includes('.')) {
-<span style="color:#ef4444">-</span>                                            const 优选IP作为反代IP = 元素.toLowerCase().includes('proxyip=true');
-<span style="color:#ef4444">-</span>                                            if (优选IP作为反代IP) 优选API.push('sub://' + subMatch[1].trim() + "?proxyip=true" + (元素.includes('#') ? ('#' + 元素.split('#')[1]) : ''));
-<span style="color:#ef4444">-</span>                                            else 优选API.push('sub://' + subMatch[1].trim() + (元素.includes('#') ? ('#' + 元素.split('#')[1]) : ''));
-<span style="color:#22c55e">+</span>                                            优选API.push('sub://' + subMatch[1].trim() + (元素.includes('#') ? ('#' + 元素.split('#')[1]) : ''));
-<span style="color:#9ca3af"> </span>                                        } else if (元素.toLowerCase().startsWith('https://')) {
-<span style="color:#9ca3af"> </span>                                            优选API.push(元素);
-<span style="color:#9ca3af"> </span>                                        } else if (元素.toLowerCase().includes('://')) {
+<span style="color:#9ca3af">                                     } else {
+<span style="color:#9ca3af">                                         const subMatch = 元素.match(/sub\s*=\s*([^\s&#]+)/i);
+<span style="color:#9ca3af">                                         if (subMatch && subMatch[1].trim().includes('.')) {
+<span style="color:#ef4444">-                                            const 优选IP作为反代IP = 元素.toLowerCase().includes('proxyip=true');
+<span style="color:#ef4444">-                                            if (优选IP作为反代IP) 优选API.push('sub://' + subMatch[1].trim() + "?proxyip=true" + (元素.includes('#') ? ('#' + 元素.split('#')[1]) : ''));
+<span style="color:#ef4444">-                                            else 优选API.push('sub://' + subMatch[1].trim() + (元素.includes('#') ? ('#' + 元素.split('#')[1]) : ''));
+<span style="color:#22c55e">+                                            优选API.push('sub://' + subMatch[1].trim() + (元素.includes('#') ? ('#' + 元素.split('#')[1]) : ''));
+<span style="color:#9ca3af">                                         } else if (元素.toLowerCase().startsWith('https://')) {
+<span style="color:#9ca3af">                                             优选API.push(元素);
+<span style="color:#9ca3af">                                         } else if (元素.toLowerCase().includes('://')) {
 @@ -267,7 +265,6 @@
-<span style="color:#9ca3af"> </span>                                const 合并其他节点数组 = [...new Set(其他节点.concat(请求优选API内容[1]))];
-<span style="color:#9ca3af"> </span>                                其他节点LINK = 合并其他节点数组.length > 0 ? 合并其他节点数组.join('\n') + '\n' : '';
-<span style="color:#9ca3af"> </span>                                const 优选API的IP = 请求优选API内容[0];
-<span style="color:#ef4444">-</span>                                反代IP池 = 请求优选API内容[3] || [];
-<span style="color:#9ca3af"> </span>                                完整优选IP = [...new Set(优选IP.concat(优选API的IP))];
-<span style="color:#9ca3af"> </span>                            } else { // 优选订阅生成器
-<span style="color:#9ca3af"> </span>                                let 优选订阅生成器HOST = url.searchParams.get('sub') || config_JSON.优选订阅生成.SUB;
+<span style="color:#9ca3af">                                 const 合并其他节点数组 = [...new Set(其他节点.concat(请求优选API内容[1]))];
+<span style="color:#9ca3af">                                 其他节点LINK = 合并其他节点数组.length > 0 ? 合并其他节点数组.join('\n') + '\n' : '';
+<span style="color:#9ca3af">                                 const 优选API的IP = 请求优选API内容[0];
+<span style="color:#ef4444">-                                反代IP池 = 请求优选API内容[3] || [];
+<span style="color:#9ca3af">                                 完整优选IP = [...new Set(优选IP.concat(优选API的IP))];
+<span style="color:#9ca3af">                             } else { // 优选订阅生成器
+<span style="color:#9ca3af">                                 let 优选订阅生成器HOST = url.searchParams.get('sub') || config_JSON.优选订阅生成.SUB;
 @@ -276,7 +273,8 @@
-<span style="color:#9ca3af"> </span>                                其他节点LINK += 优选生成器其他节点;
-<span style="color:#9ca3af"> </span>                            }
-<span style="color:#9ca3af"> </span>                            const ECHLINK参数 = config_JSON.ECH ? `&ech=${encodeURIComponent((config_JSON.ECHConfig.SNI ? config_JSON.ECHConfig.SNI + '+' : '') + config_JSON.ECHConfig.DNS)}` : '';
-<span style="color:#ef4444">-</span>                            const isLoonOrSurge = ua.includes('loon') || ua.includes('surge');
-<span style="color:#22c55e">+</span>                            let 完整节点路径 = config_JSON.随机路径 ? 随机路径(config_JSON.完整节点路径) : config_JSON.完整节点路径;
-<span style="color:#22c55e">+</span>                            if (ua.includes('loon') || ua.includes('surge')) 完整节点路径 = 完整节点路径.replace(/,/g, '%2C');
-<span style="color:#9ca3af"> </span>                            订阅内容 = 其他节点LINK + 完整优选IP.map(原始地址 => {
-<span style="color:#9ca3af"> </span>                                // 统一正则: 匹配 域名/IPv4/IPv6地址 + 可选端口 + 可选备注
-<span style="color:#9ca3af"> </span>                                // 示例: 
+<span style="color:#9ca3af">                                 其他节点LINK += 优选生成器其他节点;
+<span style="color:#9ca3af">                             }
+<span style="color:#9ca3af">                             const ECHLINK参数 = config_JSON.ECH ? `&ech=${encodeURIComponent((config_JSON.ECHConfig.SNI ? config_JSON.ECHConfig.SNI + '+' : '') + config_JSON.ECHConfig.DNS)}` : '';
+<span style="color:#ef4444">-                            const isLoonOrSurge = ua.includes('loon') || ua.includes('surge');
+<span style="color:#22c55e">+                            let 完整节点路径 = config_JSON.随机路径 ? 随机路径(config_JSON.完整节点路径) : config_JSON.完整节点路径;
+<span style="color:#22c55e">+                            if (ua.includes('loon') || ua.includes('surge')) 完整节点路径 = 完整节点路径.replace(/,/g, '%2C');
+<span style="color:#9ca3af">                             订阅内容 = 其他节点LINK + 完整优选IP.map(原始地址 => {
+<span style="color:#9ca3af">                                 // 统一正则: 匹配 域名/IPv4/IPv6地址 + 可选端口 + 可选备注
+<span style="color:#9ca3af">                                 // 示例: 
 @@ -298,14 +296,7 @@
-<span style="color:#9ca3af"> </span>                                    return null;
-<span style="color:#9ca3af"> </span>                                }
-<span style="color:#9ca3af"> </span>
-<span style="color:#ef4444">-</span>                                let 完整节点路径 = config_JSON.完整节点路径;
-<span style="color:#ef4444">-</span>                                if (反代IP池.length > 0) {
-<span style="color:#ef4444">-</span>                                    const 匹配到的反代IP = 反代IP池.find(p => p.includes(节点地址));
-<span style="color:#ef4444">-</span>                                    if (匹配到的反代IP) 完整节点路径 = (`${config_JSON.PATH}/proxyip=${匹配到的反代IP}`).replace(/\/\//g, '/') + (config_JSON.启用0RTT ? '?ed=2560' : '');
-<span style="color:#ef4444">-</span>                                }
-<span style="color:#ef4444">-</span>                                if (isLoonOrSurge) 完整节点路径 = 完整节点路径.replace(/,/g, '%2C');
-<span style="color:#ef4444">-</span>
-<span style="color:#ef4444">-</span>                                return `${协议类型}://00000000-0000-4000-8000-000000000000@${节点地址}:${节点端口}?security=tls&type=${config_JSON.传输协议 + ECHLINK参数}&host=example.com&fp=${config_JSON.Fingerprint}&sni=example.com&path=${encodeURIComponent(config_JSON.随机路径 ? 随机路径(完整节点路径) : 完整节点路径) + TLS分片参数}&encryption=none${config_JSON.跳过证书验证 ? '&insecure=1&allowInsecure=1' : ''}#${encodeURIComponent(节点备注)}`;
-<span style="color:#22c55e">+</span>                                return `${协议类型}://00000000-0000-4000-8000-000000000000@${节点地址}:${节点端口}?security=tls&type=${config_JSON.传输协议 + ECHLINK参数}&host=example.com&fp=${config_JSON.Fingerprint}&sni=example.com&path=${encodeURIComponent(完整节点路径) + TLS分片参数}&encryption=none${config_JSON.跳过证书验证 ? '&insecure=1&allowInsecure=1' : ''}#${encodeURIComponent(节点备注)}`;
-<span style="color:#9ca3af"> </span>                            }).filter(item => item !== null).join('\n');
-<span style="color:#9ca3af"> </span>                        } else { // 订阅转换
-<span style="color:#9ca3af"> </span>                            const 订阅转换URL = `${config_JSON.订阅转换配置.SUBAPI}/sub?target=${订阅类型}&url=${encodeURIComponent(url.protocol + '//' + url.host + '/sub?target=mixed&token=' + 订阅TOKEN + (url.searchParams.has('sub') && url.searchParams.get('sub') != '' ? `&sub=${url.searchParams.get('sub')}` : ''))}&config=${encodeURIComponent(config_JSON.订阅转换配置.SUBCONFIG)}&emoji=${config_JSON.订阅转换配置.SUBEMOJI}&scv=${config_JSON.跳过证书验证}`;
+<span style="color:#9ca3af">                                     return null;
+<span style="color:#9ca3af">                                 }
+<span style="color:#9ca3af"> 
+<span style="color:#ef4444">-                                let 完整节点路径 = config_JSON.完整节点路径;
+<span style="color:#ef4444">-                                if (反代IP池.length > 0) {
+<span style="color:#ef4444">-                                    const 匹配到的反代IP = 反代IP池.find(p => p.includes(节点地址));
+<span style="color:#ef4444">-                                    if (匹配到的反代IP) 完整节点路径 = (`${config_JSON.PATH}/proxyip=${匹配到的反代IP}`).replace(/\/\//g, '/') + (config_JSON.启用0RTT ? '?ed=2560' : '');
+<span style="color:#ef4444">-                                }
+<span style="color:#ef4444">-                                if (isLoonOrSurge) 完整节点路径 = 完整节点路径.replace(/,/g, '%2C');
+<span style="color:#ef4444">-
+<span style="color:#ef4444">-                                return `${协议类型}://00000000-0000-4000-8000-000000000000@${节点地址}:${节点端口}?security=tls&type=${config_JSON.传输协议 + ECHLINK参数}&host=example.com&fp=${config_JSON.Fingerprint}&sni=example.com&path=${encodeURIComponent(config_JSON.随机路径 ? 随机路径(完整节点路径) : 完整节点路径) + TLS分片参数}&encryption=none${config_JSON.跳过证书验证 ? '&insecure=1&allowInsecure=1' : ''}#${encodeURIComponent(节点备注)}`;
+<span style="color:#22c55e">+                                return `${协议类型}://00000000-0000-4000-8000-000000000000@${节点地址}:${节点端口}?security=tls&type=${config_JSON.传输协议 + ECHLINK参数}&host=example.com&fp=${config_JSON.Fingerprint}&sni=example.com&path=${encodeURIComponent(完整节点路径) + TLS分片参数}&encryption=none${config_JSON.跳过证书验证 ? '&insecure=1&allowInsecure=1' : ''}#${encodeURIComponent(节点备注)}`;
+<span style="color:#9ca3af">                             }).filter(item => item !== null).join('\n');
+<span style="color:#9ca3af">                         } else { // 订阅转换
+<span style="color:#9ca3af">                             const 订阅转换URL = `${config_JSON.订阅转换配置.SUBAPI}/sub?target=${订阅类型}&url=${encodeURIComponent(url.protocol + '//' + url.host + '/sub?target=mixed&token=' + 订阅TOKEN + (url.searchParams.has('sub') && url.searchParams.get('sub') != '' ? `&sub=${url.searchParams.get('sub')}` : ''))}&config=${encodeURIComponent(config_JSON.订阅转换配置.SUBCONFIG)}&emoji=${config_JSON.订阅转换配置.SUBEMOJI}&scv=${config_JSON.跳过证书验证}`;
 @@ -1747,7 +1738,7 @@
-<span style="color:#9ca3af"> </span>}
-<span style="color:#9ca3af"> </span>
-<span style="color:#9ca3af"> </span>async function 获取优选订阅生成器数据(优选订阅生成器HOST) {
-<span style="color:#ef4444">-</span>    let 优选IP = [], 其他节点LINK = '', 格式化HOST = 优选订阅生成器HOST.replace(/^sub:\/\//i, 'https://').split('#')[0].split('?')[0];
-<span style="color:#22c55e">+</span>    let 优选IP = [], 其他节点LINK = '', 格式化HOST = 优选订阅生成器HOST.replace(/^sub:\/\//i, 'https://').split('#')[0];
-<span style="color:#9ca3af"> </span>    if (!/^https?:\/\//i.test(格式化HOST)) 格式化HOST = `https://${格式化HOST}`;
-<span style="color:#9ca3af"> </span>
-<span style="color:#9ca3af"> </span>    try {
+<span style="color:#9ca3af"> }
+<span style="color:#9ca3af"> 
+<span style="color:#9ca3af"> async function 获取优选订阅生成器数据(优选订阅生成器HOST) {
+<span style="color:#ef4444">-    let 优选IP = [], 其他节点LINK = '', 格式化HOST = 优选订阅生成器HOST.replace(/^sub:\/\//i, 'https://').split('#')[0].split('?')[0];
+<span style="color:#22c55e">+    let 优选IP = [], 其他节点LINK = '', 格式化HOST = 优选订阅生成器HOST.replace(/^sub:\/\//i, 'https://').split('#')[0];
+<span style="color:#9ca3af">     if (!/^https?:\/\//i.test(格式化HOST)) 格式化HOST = `https://${格式化HOST}`;
+<span style="color:#9ca3af"> 
+<span style="color:#9ca3af">     try {
 @@ -1798,32 +1789,28 @@
-<span style="color:#9ca3af"> </span>}
-<span style="color:#9ca3af"> </span>
-<span style="color:#9ca3af"> </span>async function 请求优选API(urls, 默认端口 = '443', 超时时间 = 3000) {
-<span style="color:#ef4444">-</span>    if (!urls?.length) return [[], [], [], []];
-<span style="color:#ef4444">-</span>    const results = new Set(), 反代IP池 = new Set();
-<span style="color:#22c55e">+</span>    if (!urls?.length) return [[], [], []];
-<span style="color:#22c55e">+</span>    const results = new Set();
-<span style="color:#9ca3af"> </span>    let 订阅链接响应的明文LINK内容 = '', 需要订阅转换订阅URLs = [];
-<span style="color:#9ca3af"> </span>    await Promise.allSettled(urls.map(async (url) => {
-<span style="color:#9ca3af"> </span>        // 检查URL是否包含备注名
-<span style="color:#9ca3af"> </span>        const hashIndex = url.indexOf('#');
-<span style="color:#9ca3af"> </span>        const urlWithoutHash = hashIndex > -1 ? url.substring(0, hashIndex) : url;
-<span style="color:#9ca3af"> </span>        const API备注名 = hashIndex > -1 ? decodeURIComponent(url.substring(hashIndex + 1)) : null;
-<span style="color:#ef4444">-</span>        const 优选IP作为反代IP = url.toLowerCase().includes('proxyip=true');
-<span style="color:#22c55e">+</span>        
-<span style="color:#9ca3af"> </span>        if (urlWithoutHash.toLowerCase().startsWith('sub://')) {
-<span style="color:#9ca3af"> </span>            try {
-<span style="color:#9ca3af"> </span>                const [优选IP, 其他节点LINK] = await 获取优选订阅生成器数据(urlWithoutHash);
-<span style="color:#9ca3af"> </span>                // 处理第一个数组 - 优选IP
-<span style="color:#9ca3af"> </span>                if (API备注名) {
-<span style="color:#9ca3af"> </span>                    for (const ip of 优选IP) {
-<span style="color:#ef4444">-</span>                        const 处理后IP = ip.includes('#')
-<span style="color:#ef4444">-</span>                            ? `${ip} [${API备注名}]`
-<span style="color:#22c55e">+</span>                        const 处理后IP = ip.includes('#') 
-<span style="color:#22c55e">+</span>                            ? `${ip} [${API备注名}]` 
-<span style="color:#9ca3af"> </span>                            : `${ip}#[${API备注名}]`;
-<span style="color:#9ca3af"> </span>                        results.add(处理后IP);
-<span style="color:#ef4444">-</span>                        if (优选IP作为反代IP) 反代IP池.add(ip.split('#')[0]);
-<span style="color:#9ca3af"> </span>                    }
-<span style="color:#9ca3af"> </span>                } else {
-<span style="color:#ef4444">-</span>                    for (const ip of 优选IP) {
-<span style="color:#ef4444">-</span>                        results.add(ip);
-<span style="color:#ef4444">-</span>                        if (优选IP作为反代IP) 反代IP池.add(ip.split('#')[0]);
-<span style="color:#ef4444">-</span>                    }
-<span style="color:#22c55e">+</span>                    for (const ip of 优选IP) results.add(ip);
-<span style="color:#9ca3af"> </span>                }
-<span style="color:#9ca3af"> </span>                // 处理第二个数组 - 其他节点LINK
-<span style="color:#9ca3af"> </span>                if (其他节点LINK && typeof 其他节点LINK === 'string' && API备注名) {
+<span style="color:#9ca3af"> }
+<span style="color:#9ca3af"> 
+<span style="color:#9ca3af"> async function 请求优选API(urls, 默认端口 = '443', 超时时间 = 3000) {
+<span style="color:#ef4444">-    if (!urls?.length) return [[], [], [], []];
+<span style="color:#ef4444">-    const results = new Set(), 反代IP池 = new Set();
+<span style="color:#22c55e">+    if (!urls?.length) return [[], [], []];
+<span style="color:#22c55e">+    const results = new Set();
+<span style="color:#9ca3af">     let 订阅链接响应的明文LINK内容 = '', 需要订阅转换订阅URLs = [];
+<span style="color:#9ca3af">     await Promise.allSettled(urls.map(async (url) => {
+<span style="color:#9ca3af">         // 检查URL是否包含备注名
+<span style="color:#9ca3af">         const hashIndex = url.indexOf('#');
+<span style="color:#9ca3af">         const urlWithoutHash = hashIndex > -1 ? url.substring(0, hashIndex) : url;
+<span style="color:#9ca3af">         const API备注名 = hashIndex > -1 ? decodeURIComponent(url.substring(hashIndex + 1)) : null;
+<span style="color:#ef4444">-        const 优选IP作为反代IP = url.toLowerCase().includes('proxyip=true');
+<span style="color:#22c55e">+        
+<span style="color:#9ca3af">         if (urlWithoutHash.toLowerCase().startsWith('sub://')) {
+<span style="color:#9ca3af">             try {
+<span style="color:#9ca3af">                 const [优选IP, 其他节点LINK] = await 获取优选订阅生成器数据(urlWithoutHash);
+<span style="color:#9ca3af">                 // 处理第一个数组 - 优选IP
+<span style="color:#9ca3af">                 if (API备注名) {
+<span style="color:#9ca3af">                     for (const ip of 优选IP) {
+<span style="color:#ef4444">-                        const 处理后IP = ip.includes('#')
+<span style="color:#ef4444">-                            ? `${ip} [${API备注名}]`
+<span style="color:#22c55e">+                        const 处理后IP = ip.includes('#') 
+<span style="color:#22c55e">+                            ? `${ip} [${API备注名}]` 
+<span style="color:#9ca3af">                             : `${ip}#[${API备注名}]`;
+<span style="color:#9ca3af">                         results.add(处理后IP);
+<span style="color:#ef4444">-                        if (优选IP作为反代IP) 反代IP池.add(ip.split('#')[0]);
+<span style="color:#9ca3af">                     }
+<span style="color:#9ca3af">                 } else {
+<span style="color:#ef4444">-                    for (const ip of 优选IP) {
+<span style="color:#ef4444">-                        results.add(ip);
+<span style="color:#ef4444">-                        if (优选IP作为反代IP) 反代IP池.add(ip.split('#')[0]);
+<span style="color:#ef4444">-                    }
+<span style="color:#22c55e">+                    for (const ip of 优选IP) results.add(ip);
+<span style="color:#9ca3af">                 }
+<span style="color:#9ca3af">                 // 处理第二个数组 - 其他节点LINK
+<span style="color:#9ca3af">                 if (其他节点LINK && typeof 其他节点LINK === 'string' && API备注名) {
 @@ -1936,14 +1923,13 @@
-<span style="color:#9ca3af"> </span>                    const ipItem = hasPort ? line : `${hostPart}:${port}${remark}`;
-<span style="color:#9ca3af"> </span>                    // 处理第一个数组 - 优选IP
-<span style="color:#9ca3af"> </span>                    if (API备注名) {
-<span style="color:#ef4444">-</span>                        const 处理后IP = ipItem.includes('#')
-<span style="color:#ef4444">-</span>                            ? `${ipItem} [${API备注名}]`
-<span style="color:#22c55e">+</span>                        const 处理后IP = ipItem.includes('#') 
-<span style="color:#22c55e">+</span>                            ? `${ipItem} [${API备注名}]` 
-<span style="color:#9ca3af"> </span>                            : `${ipItem}#[${API备注名}]`;
-<span style="color:#9ca3af"> </span>                        results.add(处理后IP);
-<span style="color:#9ca3af"> </span>                    } else {
-<span style="color:#9ca3af"> </span>                        results.add(ipItem);
-<span style="color:#9ca3af"> </span>                    }
-<span style="color:#ef4444">-</span>                    if (优选IP作为反代IP) 反代IP池.add(ipItem.split('#')[0]);
-<span style="color:#9ca3af"> </span>                });
-<span style="color:#9ca3af"> </span>            } else {
-<span style="color:#9ca3af"> </span>                const headers = lines[0].split(',').map(h => h.trim());
+<span style="color:#9ca3af">                     const ipItem = hasPort ? line : `${hostPart}:${port}${remark}`;
+<span style="color:#9ca3af">                     // 处理第一个数组 - 优选IP
+<span style="color:#9ca3af">                     if (API备注名) {
+<span style="color:#ef4444">-                        const 处理后IP = ipItem.includes('#')
+<span style="color:#ef4444">-                            ? `${ipItem} [${API备注名}]`
+<span style="color:#22c55e">+                        const 处理后IP = ipItem.includes('#') 
+<span style="color:#22c55e">+                            ? `${ipItem} [${API备注名}]` 
+<span style="color:#9ca3af">                             : `${ipItem}#[${API备注名}]`;
+<span style="color:#9ca3af">                         results.add(处理后IP);
+<span style="color:#9ca3af">                     } else {
+<span style="color:#9ca3af">                         results.add(ipItem);
+<span style="color:#9ca3af">                     }
+<span style="color:#ef4444">-                    if (优选IP作为反代IP) 反代IP池.add(ipItem.split('#')[0]);
+<span style="color:#9ca3af">                 });
+<span style="color:#9ca3af">             } else {
+<span style="color:#9ca3af">                 const headers = lines[0].split(',').map(h => h.trim());
 @@ -1965,7 +1951,6 @@
-<span style="color:#9ca3af"> </span>                        } else {
-<span style="color:#9ca3af"> </span>                            results.add(ipItem);
-<span style="color:#9ca3af"> </span>                        }
-<span style="color:#ef4444">-</span>                        if (优选IP作为反代IP) 反代IP池.add(`${wrappedIP}:${cols[portIdx]}`);
-<span style="color:#9ca3af"> </span>                    });
-<span style="color:#9ca3af"> </span>                } else if (headers.some(h => h.includes('IP')) && headers.some(h => h.includes('延迟')) && headers.some(h => h.includes('下载速度'))) {
-<span style="color:#9ca3af"> </span>                    const ipIdx = headers.findIndex(h => h.includes('IP'));
+<span style="color:#9ca3af">                         } else {
+<span style="color:#9ca3af">                             results.add(ipItem);
+<span style="color:#9ca3af">                         }
+<span style="color:#ef4444">-                        if (优选IP作为反代IP) 反代IP池.add(`${wrappedIP}:${cols[portIdx]}`);
+<span style="color:#9ca3af">                     });
+<span style="color:#9ca3af">                 } else if (headers.some(h => h.includes('IP')) && headers.some(h => h.includes('延迟')) && headers.some(h => h.includes('下载速度'))) {
+<span style="color:#9ca3af">                     const ipIdx = headers.findIndex(h => h.includes('IP'));
 @@ -1983,7 +1968,6 @@
-<span style="color:#9ca3af"> </span>                        } else {
-<span style="color:#9ca3af"> </span>                            results.add(ipItem);
-<span style="color:#9ca3af"> </span>                        }
-<span style="color:#ef4444">-</span>                        if (优选IP作为反代IP) 反代IP池.add(`${wrappedIP}:${port}`);
-<span style="color:#9ca3af"> </span>                    });
-<span style="color:#9ca3af"> </span>                }
-<span style="color:#9ca3af"> </span>            }
+<span style="color:#9ca3af">                         } else {
+<span style="color:#9ca3af">                             results.add(ipItem);
+<span style="color:#9ca3af">                         }
+<span style="color:#ef4444">-                        if (优选IP作为反代IP) 反代IP池.add(`${wrappedIP}:${port}`);
+<span style="color:#9ca3af">                     });
+<span style="color:#9ca3af">                 }
+<span style="color:#9ca3af">             }
 @@ -1991,7 +1975,7 @@
-<span style="color:#9ca3af"> </span>    }));
-<span style="color:#9ca3af"> </span>    // 将LINK内容转换为数组并去重
-<span style="color:#9ca3af"> </span>    const LINK数组 = 订阅链接响应的明文LINK内容.trim() ? [...new Set(订阅链接响应的明文LINK内容.split(/\r?\n/).filter(line => line.trim() !== ''))] : [];
-<span style="color:#ef4444">-</span>    return [Array.from(results), LINK数组, 需要订阅转换订阅URLs, Array.from(反代IP池)];
-<span style="color:#22c55e">+</span>    return [Array.from(results), LINK数组, 需要订阅转换订阅URLs];
-<span style="color:#9ca3af"> </span>}
-<span style="color:#9ca3af"> </span>
-<span style="color:#9ca3af"> </span>async function 反代参数获取(request) {
+<span style="color:#9ca3af">     }));
+<span style="color:#9ca3af">     // 将LINK内容转换为数组并去重
+<span style="color:#9ca3af">     const LINK数组 = 订阅链接响应的明文LINK内容.trim() ? [...new Set(订阅链接响应的明文LINK内容.split(/\r?\n/).filter(line => line.trim() !== ''))] : [];
+<span style="color:#ef4444">-    return [Array.from(results), LINK数组, 需要订阅转换订阅URLs, Array.from(反代IP池)];
+<span style="color:#22c55e">+    return [Array.from(results), LINK数组, 需要订阅转换订阅URLs];
+<span style="color:#9ca3af"> }
+<span style="color:#9ca3af"> 
+<span style="color:#9ca3af"> async function 反代参数获取(request) {
 </pre></body></html>
