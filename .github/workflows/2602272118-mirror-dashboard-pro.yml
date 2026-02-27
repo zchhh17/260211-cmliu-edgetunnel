@@ -33,7 +33,7 @@ jobs:
           CARDS='<div class="card"><div class="repo">暂无数据</div><div class="meta">等待后续接入 mirror 统计</div></div>'
           # ====================================
 
-          cat > dashboard.html <<EOF
+          cat > public/dashboard.html <<EOF
           <!doctype html>
           <html lang="zh-CN">
           <head>
