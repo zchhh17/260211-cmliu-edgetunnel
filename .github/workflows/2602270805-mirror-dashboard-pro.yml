@@ -1,0 +1,109 @@
+# ✔ 输出在 public/dashboard.html
+# ✔ 后续由我们刚才的 Sync Workflow 同步到根目录
+# ✔ 支持 main / beta2.0 / 1.0
+# ✔ 自带搜索 + 卡片 + 状态徽章
+
+name: Mirror Dashboard Pro 2602270805
+
+on:
+  workflow_dispatch:
+
+jobs:
+  dashboard:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: infra
+
+      - name: Build Pro Dashboard
+        run: |
+          set -Eeuo pipefail
+
+          mkdir -p public
+
+          NOW="$(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+
+          cat > dashboard.html <<EOF
+          <!doctype html>
+          <html lang="zh-CN">
+          <head>
+          <meta charset="utf-8" />
+          <title>📊 Mirror Dashboard</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <style>
+            :root{
+              --bg:#0b1220; --card:#0f172a; --muted:#94a3b8; --text:#e5e7eb;
+              --ok:#22c55e; --skip:#94a3b8; --fail:#ef4444; --chip:#1f2937;
+              --link:#60a5fa; --border:#1f2937;
+            }
+            *{box-sizing:border-box}
+            body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
+            .wrap{max-width:1100px;margin:24px auto;padding:0 12px}
+            h1{margin:0 0 12px;font-size:22px}
+            .top{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+            .search{flex:1;min-width:220px}
+            .search input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:#020617;color:var(--text)}
+            .links a{margin-right:10px;color:var(--link);text-decoration:none}
+            .stats{color:var(--muted);font-size:12px}
+            .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:12px}
+            .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px}
+            .repo{font-weight:600;margin-bottom:6px}
+            .meta{color:var(--muted);font-size:12px;margin:2px 0}
+            .badges{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+            .chip{background:var(--chip);border:1px solid var(--border);padding:2px 8px;border-radius:999px;font-size:11px}
+            .ok{border-color:rgba(34,197,94,.5);color:#86efac}
+            .sk{border-color:rgba(148,163,184,.4);color:#cbd5f5}
+            .fl{border-color:rgba(239,68,68,.5);color:#fecaca}
+            .actions a{color:var(--link);text-decoration:none;margin-right:8px;font-size:13px}
+            footer{margin:18px 0;color:var(--muted);font-size:12px}
+          </style>
+          </head>
+          <body>
+          <div class="wrap">
+            <h1>📊 Mirror Dashboard</h1>
+            <div class="top">
+              <div class="search">
+                <input id="q" placeholder="🔍 输入仓库名 / 分支 / 状态，自动过滤…" />
+              </div>
+              <div class="links">
+                <a href="./history.html" target="_blank">History</a>
+                <a href="./trend.html" target="_blank">Trend</a>
+              </div>
+            </div>
+
+            <div class="stats">Updated: $UPDATED · Skipped: $SKIPPED · Failed: $FAILED · Last run: $(date -u +'%Y-%m-%d %H:%M:%S UTC')</div>
+
+            <div id="grid" class="grid">
+            $CARDS
+            </div>
+
+            <footer>Tip：支持直接输入过滤，无需点按钮。点击 Diff 查看变更。</footer>
+          </div>
+
+          <script>
+            const q = document.getElementById('q');
+            const cards = () => Array.from(document.querySelectorAll('.card'));
+            function filter(){
+              const v = q.value.toLowerCase().trim();
+              cards().forEach(c=>{
+                const t = c.innerText.toLowerCase();
+                c.style.display = t.includes(v) ? '' : 'none';
+              });
+            }
+            q.addEventListener('input', filter);
+          </script>
+          </body>
+          </html>
+          EOF
+
+      - name: Commit dashboard
+        run: |
+          git config user.name "mirror-bot"
+          git config user.email "mirror-bot@users.noreply.github.com"
+          git add public/dashboard.html
+          git commit -m "feat: upgrade dashboard to pro version" || echo "No changes"
+          git push origin infra
