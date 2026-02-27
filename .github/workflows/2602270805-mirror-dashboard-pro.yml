@@ -23,6 +23,8 @@ jobs:
         run: |
           set -Eeuo pipefail
           UPDATED=0
+          SKIPPED=0
+          FAILED=0
 
           mkdir -p public
 
