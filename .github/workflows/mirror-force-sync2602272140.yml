@@ -62,9 +62,9 @@ jobs:
               "status": "ok",
               "run_id": "${{ github.run_id }}"
             }
-            EOF
+          EOF
 
-            done < mirror-list.txt
+          done < mirror-list.txt
 
       - name: Commit status files
         run: |
