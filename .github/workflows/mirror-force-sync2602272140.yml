@@ -1,0 +1,75 @@
+name: Mirror Force Sync (All Branches + Status)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: infra
+
+      - name: Setup
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git jq
+
+      - name: Force Sync + Write Status
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          set -Eeuo pipefail
+
+          mkdir -p public/status
+
+          while read repo; do
+            [ -z "$repo" ] && continue
+            echo "==== Processing $repo ===="
+
+            name=$(echo "$repo" | tr '/' '-')
+            rm -rf work
+            git clone --mirror https://github.com/$repo.git work
+            cd work
+
+            git remote add target https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+
+            branches=()
+            for br in $(git for-each-ref --format='%(refname:short)' refs/heads); do
+              if [ "$br" = "infra" ]; then
+                continue
+              fi
+              echo "🔥 Force pushing branch: $br"
+              git push target "refs/heads/$br:refs/heads/$br" --force || true
+              branches+=("$br")
+            done
+
+            echo "🏷 Sync tags"
+            git push target --tags --force || true
+
+            cd ..
+            rm -rf work
+
+            cat > public/status/$name.json <<EOF
+            {
+              "repo": "$repo",
+              "time": "$(date -u +'%Y-%m-%d %H:%M:%S UTC')",
+              "branches": $(printf '%s\n' "${branches[@]}" | jq -R . | jq -s .),
+              "status": "ok",
+              "run_id": "${{ github.run_id }}"
+            }
+            EOF
+
+          done < mirror-list.txt
+
+      - name: Commit status files
+        run: |
+          git config user.name "mirror-bot"
+          git config user.email "mirror-bot@users.noreply.github.com"
+          git add public/status/*.json || true
+          git commit -m "chore: update mirror status" || echo "No changes"
+          git push origin infra
