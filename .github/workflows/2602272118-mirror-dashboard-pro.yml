@@ -3,7 +3,7 @@
 # ✔ 支持 main / beta2.0 / 1.0
 # ✔ 自带搜索 + 卡片 + 状态徽章
 
-name: Mirror Dashboard Pro 2602270805
+name: Mirror Dashboard Pro
 
 on:
   workflow_dispatch:
@@ -22,13 +22,16 @@ jobs:
       - name: Build Pro Dashboard
         run: |
           set -Eeuo pipefail
-          UPDATED=0
-          SKIPPED=0
-          FAILED=0
 
           mkdir -p public
 
           NOW="$(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+          # ====== 关键修复：先给变量兜底 ======
+          UPDATED=0
+          SKIPPED=0
+          FAILED=0
+          CARDS='<div class="card"><div class="repo">暂无数据</div><div class="meta">等待后续接入 mirror 统计</div></div>'
+          # ====================================
 
           cat > dashboard.html <<EOF
           <!doctype html>
