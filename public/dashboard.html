@@ -1,63 +1,70 @@
 <!doctype html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
-  <title>📊 Mirror Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto;background:#0b1220;color:#e5e7eb;margin:0;padding:20px}
-    h1{margin:0 0 12px}
-    .top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
-    .meta{opacity:.75}
-    .search{padding:10px 12px;border-radius:10px;border:none;outline:none;width:260px;background:#111827;color:#e5e7eb}
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:16px}
-    .card{background:#0f172a;border:1px solid #1f2937;border-radius:14px;padding:14px}
-    .repo{font-weight:700;font-size:18px}
-    .badges{margin:8px 0;display:flex;gap:8px;flex-wrap:wrap}
-    .badge{font-size:12px;padding:4px 10px;border-radius:999px}
-    .ok{background:#052e16;color:#22c55e}
-    .skip{background:#1f2937;color:#9ca3af}
-    .fail{background:#3f1d1d;color:#ef4444}
-    .links a{display:inline-block;margin-right:10px;color:#60a5fa;text-decoration:none}
-    .links a:hover{text-decoration:underline}
-  </style>
+<meta charset="utf-8" />
+<title>📊 Mirror Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{
+    --bg:#0b1220; --card:#0f172a; --muted:#94a3b8; --text:#e5e7eb;
+    --ok:#22c55e; --skip:#94a3b8; --fail:#ef4444; --chip:#1f2937;
+    --link:#60a5fa; --border:#1f2937;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
+  .wrap{max-width:1100px;margin:24px auto;padding:0 12px}
+  h1{margin:0 0 12px;font-size:22px}
+  .top{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .search{flex:1;min-width:220px}
+  .search input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:#020617;color:var(--text)}
+  .links a{margin-right:10px;color:var(--link);text-decoration:none}
+  .stats{color:var(--muted);font-size:12px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:12px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px}
+  .repo{font-weight:600;margin-bottom:6px}
+  .meta{color:var(--muted);font-size:12px;margin:2px 0}
+  .badges{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+  .chip{background:var(--chip);border:1px solid var(--border);padding:2px 8px;border-radius:999px;font-size:11px}
+  .ok{border-color:rgba(34,197,94,.5);color:#86efac}
+  .sk{border-color:rgba(148,163,184,.4);color:#cbd5f5}
+  .fl{border-color:rgba(239,68,68,.5);color:#fecaca}
+  .actions a{color:var(--link);text-decoration:none;margin-right:8px;font-size:13px}
+  footer{margin:18px 0;color:var(--muted);font-size:12px}
+</style>
 </head>
 <body>
+<div class="wrap">
+  <h1>📊 Mirror Dashboard</h1>
   <div class="top">
-    <div>
-      <h1>📊 Mirror Dashboard</h1>
-      <div class="meta">Last update: '"$NOW"'</div>
+    <div class="search">
+      <input id="q" placeholder="🔍 输入仓库名 / 分支 / 状态，自动过滤…" />
     </div>
-    <input id="q" class="search" placeholder="🔍 搜索仓库 / 分支…" />
+    <div class="links">
+      <a href="./history.html" target="_blank">History</a>
+      <a href="./trend.html" target="_blank">Trend</a>
+    </div>
   </div>
 
-  <div class="grid" id="cards">
+  <div class="stats">Updated: 0 · Skipped: 0 · Failed: 0 · Last run: 2026-02-27 13:35:02 UTC</div>
 
-    <div class="card" data-name="cmliu/edgetunnel">
-      <div class="repo">cmliu/edgetunnel</div>
-      <div class="badges">
-        <span class="badge ok">Updated</span>
-      </div>
-      <div class="links">
-        <a href="./diff-cmliu-edgetunnel-main.html" target="_blank">Main Diff</a>
-        <a href="./diff-cmliu-edgetunnel-beta2.0.html" target="_blank">Beta2.0 Diff</a>
-        <a href="./diff-cmliu-edgetunnel-1.0.html" target="_blank">1.0 Diff</a>
-        <a href="./history.html" target="_blank">History</a>
-        <a href="./trend.html" target="_blank">Trend</a>
-      </div>
-    </div>
-
+  <div id="grid" class="grid">
+  <div class="card"><div class="repo">暂无数据</div><div class="meta">等待后续接入 mirror 统计</div></div>
   </div>
 
-  <script>
-    const q = document.getElementById('q');
-    const cards = document.querySelectorAll('.card');
-    q.addEventListener('input', e => {
-      const v = e.target.value.toLowerCase();
-      cards.forEach(c => {
-        c.style.display = c.dataset.name.toLowerCase().includes(v) ? '' : 'none';
-      });
+  <footer>Tip：支持直接输入过滤，无需点按钮。点击 Diff 查看变更。</footer>
+</div>
+
+<script>
+  const q = document.getElementById('q');
+  const cards = () => Array.from(document.querySelectorAll('.card'));
+  function filter(){
+    const v = q.value.toLowerCase().trim();
+    cards().forEach(c=>{
+      const t = c.innerText.toLowerCase();
+      c.style.display = t.includes(v) ? '' : 'none';
     });
-  </script>
+  }
+  q.addEventListener('input', filter);
+</script>
 </body>
 </html>
