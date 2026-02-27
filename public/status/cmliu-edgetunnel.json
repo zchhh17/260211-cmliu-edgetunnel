@@ -1,7 +1,11 @@
-{
-  "repo": "cmliu/edgetunnel",
-  "time": "$(date -u +'%Y-%m-%d %H:%M:%S UTC')",
-  "branches": ["main", "beta2.0", "1.0"],
-  "status": "ok",
-  "run_id": "22415428868"
-}
+  {
+    "repo": "cmliu/edgetunnel",
+    "time": "2026-02-27 14:00:21 UTC",
+    "branches": [
+  "1.0",
+  "beta2.0",
+  "main"
+],
+    "status": "ok",
+    "run_id": "22489179028"
+  }
