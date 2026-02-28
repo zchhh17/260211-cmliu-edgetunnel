@@ -1,14 +1,19 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Trend</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script></head>
-<body><canvas id="c"></canvas>
-<script>
-fetch('stats/history.csv').then(r=>r.text()).then(t=>{
-  const L=t.trim().split('\n').slice(1),lab=[],u=[],s=[],f=[];
-  L.forEach(x=>{const a=x.split(',');lab.push(a[0]);u.push(+a[1]);s.push(+a[2]);f.push(+a[3]);});
-  new Chart(document.getElementById('c'),{type:'line',data:{labels:lab,datasets:[
-    {label:'Updated',data:u,borderColor:'green'},
-    {label:'Skipped',data:s,borderColor:'gray'},
-    {label:'Failed',data:f,borderColor:'red'}
-  ]}});
-});
-</script></body></html>
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mirror Trend</title>
+</head>
+<body>
+  <h2>📈 History Trend</h2>
+  <canvas id="trend"></canvas>
+  <p>
+    🟢 Updated　
+    🟡 Skipped　
+    🔴 Failed
+  </p>
+
+  <!-- 引入趋势 JS -->
+  <script src="./trend.js"></script>
+</body>
+</html>
