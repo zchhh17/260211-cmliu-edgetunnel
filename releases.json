@@ -1,1 +1,112 @@
-[{"url":"https://api.github.com/repos/zchhh17/260211-cmliu-edgetunnel/releases/285117142","assets_url":"https://api.github.com/repos/zchhh17/260211-cmliu-edgetunnel/releases/285117142/assets","upload_url":"https://uploads.github.com/repos/zchhh17/260211-cmliu-edgetunnel/releases/285117142/assets{?name,label}","html_url":"https://github.com/zchhh17/260211-cmliu-edgetunnel/releases/tag/untagged-63c95d1ea6bb4574ee1c","id":285117142,"author":{"login":"github-actions[bot]","id":41898282,"node_id":"MDM6Qm90NDE4OTgyODI=","avatar_url":"https://avatars.githubusercontent.com/in/15368?v=4","gravatar_id":"","url":"https://api.github.com/users/github-actions%5Bbot%5D","html_url":"https://github.com/apps/github-actions","followers_url":"https://api.github.com/users/github-actions%5Bbot%5D/followers","following_url":"https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}","gists_url":"https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}","starred_url":"https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/github-actions%5Bbot%5D/subscriptions","organizations_url":"https://api.github.com/users/github-actions%5Bbot%5D/orgs","repos_url":"https://api.github.com/users/github-actions%5Bbot%5D/repos","events_url":"https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}","received_events_url":"https://api.github.com/users/github-actions%5Bbot%5D/received_events","type":"Bot","user_view_type":"public","site_admin":false},"node_id":"RE_kwDORNNgws4Q_orW","tag_name":"mirror-2","target_commitish":"infra","name":"Mirror Run 2","draft":true,"immutable":false,"prerelease":false,"created_at":"2026-02-11T06:55:44Z","updated_at":"2026-02-11T06:55:44Z","published_at":null,"assets":[{"url":"https://api.github.com/repos/zchhh17/260211-cmliu-edgetunnel/releases/assets/354051949","id":354051949,"node_id":"RA_kwDORNNgws4VGmdt","name":"summary.txt","label":"","uploader":{"login":"github-actions[bot]","id":41898282,"node_id":"MDM6Qm90NDE4OTgyODI=","avatar_url":"https://avatars.githubusercontent.com/in/15368?v=4","gravatar_id":"","url":"https://api.github.com/users/github-actions%5Bbot%5D","html_url":"https://github.com/apps/github-actions","followers_url":"https://api.github.com/users/github-actions%5Bbot%5D/followers","following_url":"https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}","gists_url":"https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}","starred_url":"https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/github-actions%5Bbot%5D/subscriptions","organizations_url":"https://api.github.com/users/github-actions%5Bbot%5D/orgs","repos_url":"https://api.github.com/users/github-actions%5Bbot%5D/repos","events_url":"https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}","received_events_url":"https://api.github.com/users/github-actions%5Bbot%5D/received_events","type":"Bot","user_view_type":"public","site_admin":false},"content_type":"text/plain","state":"uploaded","size":123,"digest":"sha256:a95a10cec46858380903a94a79b18670ddf546558e5e0ea13a738ae9abacf76d","download_count":0,"created_at":"2026-02-11T06:55:44Z","updated_at":"2026-02-11T06:55:44Z","browser_download_url":"https://github.com/zchhh17/260211-cmliu-edgetunnel/releases/download/untagged-63c95d1ea6bb4574ee1c/summary.txt"}],"tarball_url":null,"zipball_url":null,"body":"Mirror Time: Wed Feb 11 06:55:43 UTC 2026\nUpstream: cmliu/edgetunnel\nLatest SHA: ce7ef9fd60dfd33f8b9bcd7f63fb692e65775a16\n\n"},{"url":"https://api.github.com/repos/zchhh17/260211-cmliu-edgetunnel/releases/285983235","assets_url":"https://api.github.com/repos/zchhh17/260211-cmliu-edgetunnel/releases/285983235/assets","upload_url":"https://uploads.github.com/repos/zchhh17/260211-cmliu-edgetunnel/releases/285983235/assets{?name,label}","html_url":"https://github.com/zchhh17/260211-cmliu-edgetunnel/releases/tag/mirror-1770967166-cmliu-edgetunnel","id":285983235,"author":{"login":"zchhh17","id":220448247,"node_id":"U_kgDODSPF9w","avatar_url":"https://avatars.githubusercontent.com/u/220448247?v=4","gravatar_id":"","url":"https://api.github.com/users/zchhh17","html_url":"https://github.com/zchhh17","followers_url":"https://api.github.com/users/zchhh17/followers","following_url":"https://api.github.com/users/zchhh17/following{/other_user}","gists_url":"https://api.github.com/users/zchhh17/gists{/gist_id}","starred_url":"https://api.github.com/users/zchhh17/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/zchhh17/subscriptions","organizations_url":"https://api.github.com/users/zchhh17/orgs","repos_url":"https://api.github.com/users/zchhh17/repos","events_url":"https://api.github.com/users/zchhh17/events{/privacy}","received_events_url":"https://api.github.com/users/zchhh17/received_events","type":"User","user_view_type":"public","site_admin":false},"node_id":"RE_kwDORNNgws4RC8ID","tag_name":"mirror-1770967166-cmliu-edgetunnel","target_commitish":"infra","name":"cmliu/edgetunnel mirror","draft":false,"immutable":false,"prerelease":false,"created_at":"2026-02-13T07:17:26Z","updated_at":"2026-02-13T07:19:28Z","published_at":"2026-02-13T07:19:28Z","assets":[{"url":"https://api.github.com/repos/zchhh17/260211-cmliu-edgetunnel/releases/assets/355223745","id":355223745,"node_id":"RA_kwDORNNgws4VLEjB","name":"cmliu-edgetunnel-commit.txt","label":"","uploader":{"login":"zchhh17","id":220448247,"node_id":"U_kgDODSPF9w","avatar_url":"https://avatars.githubusercontent.com/u/220448247?v=4","gravatar_id":"","url":"https://api.github.com/users/zchhh17","html_url":"https://github.com/zchhh17","followers_url":"https://api.github.com/users/zchhh17/followers","following_url":"https://api.github.com/users/zchhh17/following{/other_user}","gists_url":"https://api.github.com/users/zchhh17/gists{/gist_id}","starred_url":"https://api.github.com/users/zchhh17/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/zchhh17/subscriptions","organizations_url":"https://api.github.com/users/zchhh17/orgs","repos_url":"https://api.github.com/users/zchhh17/repos","events_url":"https://api.github.com/users/zchhh17/events{/privacy}","received_events_url":"https://api.github.com/users/zchhh17/received_events","type":"User","user_view_type":"public","site_admin":false},"content_type":"text/plain; charset=utf-8","state":"uploaded","size":1480,"digest":"sha256:84aeb34c30b3884986d8869eef7de7ced424b4bd20b981f3ebc8d689d5b881a5","download_count":1,"created_at":"2026-02-13T07:19:27Z","updated_at":"2026-02-13T07:19:27Z","browser_download_url":"https://github.com/zchhh17/260211-cmliu-edgetunnel/releases/download/mirror-1770967166-cmliu-edgetunnel/cmliu-edgetunnel-commit.txt"},{"url":"https://api.github.com/repos/zchhh17/260211-cmliu-edgetunnel/releases/assets/355223746","id":355223746,"node_id":"RA_kwDORNNgws4VLEjC","name":"cmliu-edgetunnel.tar.gz","label":"","uploader":{"login":"zchhh17","id":220448247,"node_id":"U_kgDODSPF9w","avatar_url":"https://avatars.githubusercontent.com/u/220448247?v=4","gravatar_id":"","url":"https://api.github.com/users/zchhh17","html_url":"https://github.com/zchhh17","followers_url":"https://api.github.com/users/zchhh17/followers","following_url":"https://api.github.com/users/zchhh17/following{/other_user}","gists_url":"https://api.github.com/users/zchhh17/gists{/gist_id}","starred_url":"https://api.github.com/users/zchhh17/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/zchhh17/subscriptions","organizations_url":"https://api.github.com/users/zchhh17/orgs","repos_url":"https://api.github.com/users/zchhh17/repos","events_url":"https://api.github.com/users/zchhh17/events{/privacy}","received_events_url":"https://api.github.com/users/zchhh17/received_events","type":"User","user_view_type":"public","site_admin":false},"content_type":"application/x-gtar","state":"uploaded","size":18794338,"digest":"sha256:52230c412f36f7796823dec416bf6c1d2ad5c43348456064fb37f940e2fc25a8","download_count":1,"created_at":"2026-02-13T07:19:27Z","updated_at":"2026-02-13T07:19:28Z","browser_download_url":"https://github.com/zchhh17/260211-cmliu-edgetunnel/releases/download/mirror-1770967166-cmliu-edgetunnel/cmliu-edgetunnel.tar.gz"}],"tarball_url":"https://api.github.com/repos/zchhh17/260211-cmliu-edgetunnel/tarball/mirror-1770967166-cmliu-edgetunnel","zipball_url":"https://api.github.com/repos/zchhh17/260211-cmliu-edgetunnel/zipball/mirror-1770967166-cmliu-edgetunnel","body":"Upstream updated to c7147a6023fd99335fafd1197a9c661d4f2dfa18"},{"url":"https://api.github.com/repos/zchhh17/260211-cmliu-edgetunnel/releases/285554190","assets_url":"https://api.github.com/repos/zchhh17/260211-cmliu-edgetunnel/releases/285554190/assets","upload_url":"https://uploads.github.com/repos/zchhh17/260211-cmliu-edgetunnel/releases/285554190/assets{?name,label}","html_url":"https://github.com/zchhh17/260211-cmliu-edgetunnel/releases/tag/mirror-1770878121-cmliu-edgetunnel","id":285554190,"author":{"login":"zchhh17","id":220448247,"node_id":"U_kgDODSPF9w","avatar_url":"https://avatars.githubusercontent.com/u/220448247?v=4","gravatar_id":"","url":"https://api.github.com/users/zchhh17","html_url":"https://github.com/zchhh17","followers_url":"https://api.github.com/users/zchhh17/followers","following_url":"https://api.github.com/users/zchhh17/following{/other_user}","gists_url":"https://api.github.com/users/zchhh17/gists{/gist_id}","starred_url":"https://api.github.com/users/zchhh17/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/zchhh17/subscriptions","organizations_url":"https://api.github.com/users/zchhh17/orgs","repos_url":"https://api.github.com/users/zchhh17/repos","events_url":"https://api.github.com/users/zchhh17/events{/privacy}","received_events_url":"https://api.github.com/users/zchhh17/received_events","type":"User","user_view_type":"public","site_admin":false},"node_id":"RE_kwDORNNgws4RBTYO","tag_name":"mirror-1770878121-cmliu-edgetunnel","target_commitish":"infra","name":"cmliu/edgetunnel mirror","draft":false,"immutable":false,"prerelease":false,"created_at":"2026-02-12T06:34:26Z","updated_at":"2026-02-12T06:35:23Z","published_at":"2026-02-12T06:35:23Z","assets":[{"url":"https://api.github.com/repos/zchhh17/260211-cmliu-edgetunnel/releases/assets/354650024","id":354650024,"node_id":"RA_kwDORNNgws4VI4eo","name":"cmliu-edgetunnel-commit.txt","label":"","uploader":{"login":"zchhh17","id":220448247,"node_id":"U_kgDODSPF9w","avatar_url":"https://avatars.githubusercontent.com/u/220448247?v=4","gravatar_id":"","url":"https://api.github.com/users/zchhh17","html_url":"https://github.com/zchhh17","followers_url":"https://api.github.com/users/zchhh17/followers","following_url":"https://api.github.com/users/zchhh17/following{/other_user}","gists_url":"https://api.github.com/users/zchhh17/gists{/gist_id}","starred_url":"https://api.github.com/users/zchhh17/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/zchhh17/subscriptions","organizations_url":"https://api.github.com/users/zchhh17/orgs","repos_url":"https://api.github.com/users/zchhh17/repos","events_url":"https://api.github.com/users/zchhh17/events{/privacy}","received_events_url":"https://api.github.com/users/zchhh17/received_events","type":"User","user_view_type":"public","site_admin":false},"content_type":"text/plain; charset=utf-8","state":"uploaded","size":1482,"digest":"sha256:0aaafc3f0173fb869f1e56964ce077c304b418306b11882b69e543d05bde3a63","download_count":1,"created_at":"2026-02-12T06:35:21Z","updated_at":"2026-02-12T06:35:22Z","browser_download_url":"https://github.com/zchhh17/260211-cmliu-edgetunnel/releases/download/mirror-1770878121-cmliu-edgetunnel/cmliu-edgetunnel-commit.txt"},{"url":"https://api.github.com/repos/zchhh17/260211-cmliu-edgetunnel/releases/assets/354650025","id":354650025,"node_id":"RA_kwDORNNgws4VI4ep","name":"cmliu-edgetunnel.tar.gz","label":"","uploader":{"login":"zchhh17","id":220448247,"node_id":"U_kgDODSPF9w","avatar_url":"https://avatars.githubusercontent.com/u/220448247?v=4","gravatar_id":"","url":"https://api.github.com/users/zchhh17","html_url":"https://github.com/zchhh17","followers_url":"https://api.github.com/users/zchhh17/followers","following_url":"https://api.github.com/users/zchhh17/following{/other_user}","gists_url":"https://api.github.com/users/zchhh17/gists{/gist_id}","starred_url":"https://api.github.com/users/zchhh17/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/zchhh17/subscriptions","organizations_url":"https://api.github.com/users/zchhh17/orgs","repos_url":"https://api.github.com/users/zchhh17/repos","events_url":"https://api.github.com/users/zchhh17/events{/privacy}","received_events_url":"https://api.github.com/users/zchhh17/received_events","type":"User","user_view_type":"public","site_admin":false},"content_type":"application/x-gtar","state":"uploaded","size":18838564,"digest":"sha256:90b5afaffbc1791323e63e36933d1fcf6e3eb48454dfb6b7c3e76a830c9d4b09","download_count":1,"created_at":"2026-02-12T06:35:21Z","updated_at":"2026-02-12T06:35:22Z","browser_download_url":"https://github.com/zchhh17/260211-cmliu-edgetunnel/releases/download/mirror-1770878121-cmliu-edgetunnel/cmliu-edgetunnel.tar.gz"}],"tarball_url":"https://api.github.com/repos/zchhh17/260211-cmliu-edgetunnel/tarball/mirror-1770878121-cmliu-edgetunnel","zipball_url":"https://api.github.com/repos/zchhh17/260211-cmliu-edgetunnel/zipball/mirror-1770878121-cmliu-edgetunnel","body":"Upstream updated to ce7ef9fd60dfd33f8b9bcd7f63fb692e65775a16"}]
+{
+  "history": [
+    {
+      "tag": "mirror-1770878121-cmliu-edgetunnel",
+      "time": "2026-02-12T14:34:26Z",
+      "url": "https://github.com/260211-cmliu-edgetunnel/releases/tag/mirror-1770878121-cmliu-edgetunnel"
+    },
+    {
+      "tag": "mirror-1770967166-cmliu-edgetunnel",
+      "time": "2026-02-13T15:17:26Z",
+      "url": "https://github.com/260211-cmliu-edgetunnel/releases/tag/mirror-1770967166-cmliu-edgetunnel"
+    },
+    {
+      "tag": "mirror-1771180835-cmliu-edgetunnel",
+      "time": "2026-02-15T18:30:36Z",
+      "url": "https://github.com/260211-cmliu-edgetunnel/releases/tag/mirror-1771180835-cmliu-edgetunnel"
+    },
+    {
+      "tag": "mirror-5",
+      "time": "2026-02-15T18:30:36Z",
+      "url": "https://github.com/260211-cmliu-edgetunnel/releases/tag/mirror-5"
+    }
+  ],
+  "mirrors": [
+    {
+      "tag": "mirror-1770878121-cmliu-edgetunnel",
+      "time": "2026-02-12T14:34:26Z",
+      "url": "https://github.com/260211-cmliu-edgetunnel/releases/tag/mirror-1770878121-cmliu-edgetunnel"
+    },
+    {
+      "tag": "mirror-1770967166-cmliu-edgetunnel",
+      "time": "2026-02-13T15:17:26Z",
+      "url": "https://github.com/260211-cmliu-edgetunnel/releases/tag/mirror-1770967166-cmliu-edgetunnel"
+    },
+    {
+      "tag": "mirror-1771180835-cmliu-edgetunnel",
+      "time": "2026-02-15T18:30:36Z",
+      "url": "https://github.com/260211-cmliu-edgetunnel/releases/tag/mirror-1771180835-cmliu-edgetunnel"
+    },
+    {
+      "tag": "mirror-5",
+      "time": "2026-02-15T18:30:36Z",
+      "url": "https://github.com/260211-cmliu-edgetunnel/releases/tag/mirror-5"
+    }
+  ],
+  "public": [
+    {
+      "tag": "mirror-1770878121-cmliu-edgetunnel",
+      "time": "2026-02-12T14:34:26Z",
+      "url": "https://github.com/260211-cmliu-edgetunnel/releases/tag/mirror-1770878121-cmliu-edgetunnel"
+    },
+    {
+      "tag": "mirror-1770967166-cmliu-edgetunnel",
+      "time": "2026-02-13T15:17:26Z",
+      "url": "https://github.com/260211-cmliu-edgetunnel/releases/tag/mirror-1770967166-cmliu-edgetunnel"
+    },
+    {
+      "tag": "mirror-1771180835-cmliu-edgetunnel",
+      "time": "2026-02-15T18:30:36Z",
+      "url": "https://github.com/260211-cmliu-edgetunnel/releases/tag/mirror-1771180835-cmliu-edgetunnel"
+    },
+    {
+      "tag": "mirror-5",
+      "time": "2026-02-15T18:30:36Z",
+      "url": "https://github.com/260211-cmliu-edgetunnel/releases/tag/mirror-5"
+    }
+  ],
+  "releases": [
+    {
+      "tag": "mirror-1770878121-cmliu-edgetunnel",
+      "time": "2026-02-12T14:34:26Z",
+      "url": "https://github.com/260211-cmliu-edgetunnel/releases/tag/mirror-1770878121-cmliu-edgetunnel"
+    },
+    {
+      "tag": "mirror-1770967166-cmliu-edgetunnel",
+      "time": "2026-02-13T15:17:26Z",
+      "url": "https://github.com/260211-cmliu-edgetunnel/releases/tag/mirror-1770967166-cmliu-edgetunnel"
+    },
+    {
+      "tag": "mirror-1771180835-cmliu-edgetunnel",
+      "time": "2026-02-15T18:30:36Z",
+      "url": "https://github.com/260211-cmliu-edgetunnel/releases/tag/mirror-1771180835-cmliu-edgetunnel"
+    },
+    {
+      "tag": "mirror-5",
+      "time": "2026-02-15T18:30:36Z",
+      "url": "https://github.com/260211-cmliu-edgetunnel/releases/tag/mirror-5"
+    }
+  ],
+  "stats": [
+    {
+      "tag": "mirror-1770878121-cmliu-edgetunnel",
+      "time": "2026-02-12T14:34:26Z",
+      "url": "https://github.com/260211-cmliu-edgetunnel/releases/tag/mirror-1770878121-cmliu-edgetunnel"
+    },
+    {
+      "tag": "mirror-1770967166-cmliu-edgetunnel",
+      "time": "2026-02-13T15:17:26Z",
+      "url": "https://github.com/260211-cmliu-edgetunnel/releases/tag/mirror-1770967166-cmliu-edgetunnel"
+    },
+    {
+      "tag": "mirror-1771180835-cmliu-edgetunnel",
+      "time": "2026-02-15T18:30:36Z",
+      "url": "https://github.com/260211-cmliu-edgetunnel/releases/tag/mirror-1771180835-cmliu-edgetunnel"
+    },
+    {
+      "tag": "mirror-5",
+      "time": "2026-02-15T18:30:36Z",
+      "url": "https://github.com/260211-cmliu-edgetunnel/releases/tag/mirror-5"
+    }
+  ]
+}
